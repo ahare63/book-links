@@ -1,14 +1,32 @@
 """A later text that names an earlier work by its title, optionally with its author."""
 
+import re
 from collections import defaultdict
 
 from pipeline.detectors.base import Candidate, Detector, Evidence, snippet
 from pipeline.detectors.title import ARTICLES, EVIDENCE_PER_CANDIDATE, PhraseIndex, one_word_weight, phrase_for, words
 
+BOOK_OF = re.compile(r"\bbook of\s+$", re.IGNORECASE)
+
+
+SHORT_TITLE = 2  # subwork titles of this many words or fewer, articles aside, need a cue
+
+
+def marked_as_title(text, start, end, author):
+    """True when the words are in italics (Gutenberg's _underscores_), follow "the Book of", or share
+    the passage with the author's surname ("Shakespeare's Richard III")."""
+    italic = start > 0 and text[start - 1] == "_" and text[end : end + 1] == "_"
+    surname = author.split()[-1] if author and author.lower() not in ("various", "anonymous") else None
+    return (
+        italic
+        or BOOK_OF.search(text[max(0, start - 12) : start]) is not None
+        or (surname is not None and re.search(rf"\b{re.escape(surname)}\b", text) is not None)
+    )
+
 
 class MentionDetector(Detector):
     name = "mention"
-    version = "2"
+    version = "4"
 
     def detect(self, corpus):
         titled = {}
@@ -39,9 +57,24 @@ class MentionDetector(Detector):
                     named.add(lower)
                 for wid, first, last in titles.matches(tokens, as_printed=True):
                     work = titled[wid][0]
-                    if work.id == text_work.id or work.year >= text_work.text_year or work.author == text_work.author:
+                    if (
+                        work.id == text_work.id
+                        or work.parent_id == text_work.id
+                        or work.year >= text_work.text_year
+                        or work.author == text_work.author
+                    ):
                         continue
-                    quote = snippet(passage.text, tokens[first][2], tokens[last][3])
+                    start, end = tokens[first][2], tokens[last][3]
+                    # Short subwork titles are mostly names ("Daniel", "Richard III") or words ("Acts",
+                    # "The Tempest"), so they need a sign that the book or play is meant.
+                    short = len([w for w in titled[wid][1][1] if w not in ARTICLES]) <= SHORT_TITLE
+                    if (
+                        work.parent_id is not None
+                        and short
+                        and not marked_as_title(passage.text, start, end, work.author)
+                    ):
+                        continue
+                    quote = snippet(passage.text, start, end)
                     hit = found[wid].setdefault(passage.id, [0, passage.position, passage.id, quote])
                     hit[0] += 1
             for wid in sorted(found):

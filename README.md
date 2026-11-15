@@ -24,6 +24,7 @@ cd viewer && npm install && npm run build && cd ..
 
 ```sh
 sh works/seed.sh                 # fetches about 55 texts, one every two seconds, into data/
+.venv/bin/book-links themes      # label each work with themes, using the model (about 20 minutes)
 .venv/bin/book-links detect      # propose candidate links (about a minute)
 .venv/bin/book-links judge       # ask the model about each new candidate
 .venv/bin/book-links serve       # open http://127.0.0.1:8765 to browse and review
@@ -55,10 +56,15 @@ The same thing from the command line:
 | A text from another site | `book-links add-url URL --title T --author A --year Y` |
 | A text file you have | `book-links add-file PATH --title T --author A --year Y` |
 | A book with no available text | `book-links add-stub --title "Infinite Jest" --author "David Foster Wallace" --year 1996` |
-| A poem inside a collection | add an entry to `works/subworks.yaml`, then `book-links add-subworks` |
+| A poem, play or book inside a collection | add an entry to `works/subworks.yaml`, then `book-links add-subworks` |
 | An article about links or themes | `book-links add-article PATH_OR_URL` |
 
-After adding anything, run `detect` and `judge` again. Only new candidates are sent to the model.
+After adding anything, run `themes`, `detect` and `judge` again. Only works without themes and new
+candidates are sent to the model.
+
+The King James Bible and the Complete Works of Shakespeare are declared book by book and play by
+play in `works/subworks.yaml`, so links land on Ecclesiastes or *The Tempest* rather than on the
+whole volume. Each subwork has its own year (for Bible books, an approximate composition date).
 
 Give every work its original publication year (negative for BC). `--title` and `--author` are
 optional for `add-book`, but Gutenberg's own titles often carry subtitles that stop title matching,
@@ -80,7 +86,19 @@ work, even from a single word.
 | `quotation` | a run of seven or more words shared with an earlier text by another author | `quotation` |
 | `vocabulary` | two works sharing far more rare words than chance predicts | `shared-vocabulary` |
 | `signature` | a later work using a term recorded as a signature of an earlier one | `shared-vocabulary` |
+| `names` | a later text using three or more names of people or places from an earlier work, or naming its author | `allusion` |
+| `theme` | two works sharing two or more uncommon theme labels | `theme` |
 | `article` | a link claimed by an ingested article | any |
+
+`names` finds allusions that share no wording, including across translations: Dante's Aeneas,
+Dido and Turnus point to the Aeneid whichever English version is held. A name counts only if it is
+almost never written in lower case anywhere in the corpus, is used by few works, and belongs to the
+earliest work that uses it. Treat its candidates as leads for the judge; shared places and
+historical figures still get through.
+
+`theme` uses labels from `book-links themes`, which asks the model for three to five specific
+themes per work, reusing labels already in use where they fit. The labels come from the model's
+knowledge of the work, not from its text, and theme links say so.
 
 A link always runs from the later work to the earlier one it draws on. A link that would run
 backwards in time is never stored. For a translation, the English wording dates from the
@@ -103,7 +121,7 @@ detector proposes.
 
 ## The model
 
-The judge and the article reader call the command in `BOOK_LINKS_MODEL_CMD`, which must read a
+The judge, the theme labeller and the article reader call the command in `BOOK_LINKS_MODEL_CMD`, which must read a
 prompt on standard input and print a reply containing JSON. The default is headless `claude` on
 Haiku with tools and settings turned off; it uses your logged-in Claude Code account, and calls
 count against that plan's limits. Verdicts are cached, so a link is only judged again when its
@@ -121,3 +139,15 @@ gold/                known links used to measure recall
 tests/               tests and the excerpts they run on
 data/                database and full texts (not in git)
 ```
+
+## Publishing to GitHub Pages
+
+```sh
+scripts/publish-pages.sh            # builds the viewer and graph, pushes them to the gh-pages branch
+scripts/publish-pages.sh --dry-run  # same, but commits locally in a temporary worktree and does not push
+```
+
+The site is a read-only copy of the viewer: `book-links build-site --out DIR` writes the built viewer
+plus a `graph.json` with no review controls, no term lens and no rejected links. In the repository's
+Pages settings, publish from the `gh-pages` branch (root). The graph includes the short quotes shown
+as evidence, so check that they are acceptable for every work before publishing.

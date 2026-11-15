@@ -92,7 +92,7 @@ class PhraseIndex:
 
 class TitleDetector(Detector):
     name = "title"
-    version = "2"
+    version = "4"
 
     def detect(self, corpus):
         titled = {}
@@ -103,6 +103,8 @@ class TitleDetector(Detector):
                 continue
             if len(phrase[1]) == 1 and one_word_weight(phrase[1][0]) == 0.0:
                 continue
+            if work.parent_id is not None and len(phrase[1]) == 1:
+                continue  # a play called "The Tempest" does not take its title from every storm
             titled[work.id] = (work, phrase)
         index = PhraseIndex((wid, phrase) for wid, (_, phrase) in titled.items())
 
@@ -115,7 +117,7 @@ class TitleDetector(Detector):
                 # Articles are ignored on both sides, so "The Sound and the Fury" matches "sound and fury".
                 tokens = [t for t in words(passage.text) if t[1] not in ARTICLES]
                 for wid, first, last in index.matches(tokens):
-                    if wid == text_work.id:
+                    if wid == text_work.id or titled[wid][0].parent_id == text_work.id:
                         continue
                     work = titled[wid][0]
                     if work.year < text_work.text_year:

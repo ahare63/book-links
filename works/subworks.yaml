@@ -3,3 +3,558 @@
   year: 1819
   first_line: "My heart aches, and a drowsy numbness pains"
   last_line: "Fled is that music:--Do I wake or sleep?"
+
+
+# King James Bible (ebook 10). Years are approximate scholarly composition dates; negative is BCE.
+- parent: '10'
+  title: Genesis
+  year: -550
+  first_line: 1:1 In the beginning God created the heaven and the earth.
+  last_line: embalmed him, and he was put in a coffin in Egypt.
+- parent: '10'
+  title: Exodus
+  year: -550
+  first_line: 1:1 Now these are the names of the children of Israel, which came
+  last_line: throughout all their journeys.
+- parent: '10'
+  title: Leviticus
+  year: -550
+  first_line: 1:1 And the LORD called unto Moses, and spake unto him out of the
+  last_line: the children of Israel in mount Sinai.
+- parent: '10'
+  title: Numbers
+  year: -550
+  first_line: 1:1 And the LORD spake unto Moses in the wilderness of Sinai, in the
+  last_line: commanded by the hand of Moses unto the children of Israel in the
+- parent: '10'
+  title: Deuteronomy
+  year: -600
+  first_line: 1:1 These be the words which Moses spake unto all Israel on this side
+  last_line: in the sight of all Israel.
+- parent: '10'
+  title: Joshua
+  year: -600
+  first_line: 1:1 Now after the death of Moses the servant of the LORD it came to
+  last_line: that pertained to Phinehas his son, which was given him in mount
+- parent: '10'
+  title: Judges
+  year: -550
+  first_line: 1:1 Now after the death of Joshua it came to pass, that the children
+  last_line: '21:25 In those days there was no king in Israel: every man did that'
+- parent: '10'
+  title: Ruth
+  year: -500
+  first_line: 1:1 Now it came to pass in the days when the judges ruled, that there
+  last_line: and Boaz begat Obed, 4:22 And Obed begat Jesse, and Jesse begat David.
+- parent: '10'
+  title: 1 Samuel
+  year: -550
+  first_line: 'Otherwise Called:'
+  last_line: Jabesh, and fasted seven days.
+- parent: '10'
+  title: 2 Samuel
+  year: -550
+  first_line: 1:1 Now it came to pass after the death of Saul, when David was
+  last_line: and the plague was stayed from Israel.
+- parent: '10'
+  title: 1 Kings
+  year: -550
+  first_line: 'Commonly Called:'
+  last_line: Israel, according to all that his father had done.
+- parent: '10'
+  title: 2 Kings
+  year: -550
+  first_line: The Fourth Book of the Kings
+  last_line: king, a daily rate for every day, all the days of his life.
+- parent: '10'
+  title: 1 Chronicles
+  year: -400
+  first_line: 1:1 Adam, Sheth, Enosh, 1:2 Kenan, Mahalaleel, Jered, 1:3 Henoch,
+  last_line: all the kingdoms of the countries.
+- parent: '10'
+  title: 2 Chronicles
+  year: -400
+  first_line: 1:1 And Solomon the son of David was strengthened in his kingdom, and
+  last_line: you of all his people? The LORD his God be with him, and let him go up.
+- parent: '10'
+  title: Ezra
+  year: -400
+  first_line: 1:1 Now in the first year of Cyrus king of Persia, that the word of
+  last_line: whom they had children.
+- parent: '10'
+  title: Nehemiah
+  year: -400
+  first_line: 1:1 The words of Nehemiah the son of Hachaliah. And it came to pass
+  last_line: Remember me, O my God, for good.
+- parent: '10'
+  title: Esther
+  year: -400
+  first_line: 1:1 Now it came to pass in the days of Ahasuerus, (this is Ahasuerus
+  last_line: all his seed.
+- parent: '10'
+  title: Job
+  year: -500
+  first_line: 1:1 There was a man in the land of Uz, whose name was Job; and that
+  last_line: 42:17 So Job died, being old and full of days.
+- parent: '10'
+  title: Psalms
+  year: -500
+  first_line: 1:1 Blessed is the man that walketh not in the counsel of the ungodly,
+  last_line: 150:6 Let every thing that hath breath praise the LORD. Praise ye the LORD.
+- parent: '10'
+  title: Proverbs
+  year: -500
+  first_line: 1:1 The proverbs of Solomon the son of David, king of Israel; 1:2 To
+  last_line: her in the gates.
+- parent: '10'
+  title: Ecclesiastes
+  year: -250
+  first_line: The Preacher
+  last_line: thing, whether it be good, or whether it be evil.
+- parent: '10'
+  title: Song of Solomon
+  year: -300
+  first_line: 1:1 The song of songs, which is Solomon’s.
+  last_line: hart upon the mountains of spices.
+- parent: '10'
+  title: Isaiah
+  year: -700
+  first_line: 1:1 The vision of Isaiah the son of Amoz, which he saw concerning
+  last_line: unto all flesh.
+- parent: '10'
+  title: Jeremiah
+  year: -600
+  first_line: 1:1 The words of Jeremiah the son of Hilkiah, of the priests that
+  last_line: the days of his life.
+- parent: '10'
+  title: Lamentations
+  year: -580
+  first_line: 1:1 How doth the city sit solitary, that was full of people! how is
+  last_line: 5:22 But thou hast utterly rejected us; thou art very wroth against us.
+- parent: '10'
+  title: Ezekiel
+  year: -570
+  first_line: 1:1 Now it came to pass in the thirtieth year, in the fourth month,
+  last_line: the city from that day shall be, The LORD is there.
+- parent: '10'
+  title: Daniel
+  year: -165
+  first_line: 1:1 In the third year of the reign of Jehoiakim king of Judah came
+  last_line: and stand in thy lot at the end of the days.
+- parent: '10'
+  title: Hosea
+  year: -750
+  first_line: 1:1 The word of the LORD that came unto Hosea, the son of Beeri, in
+  last_line: 'shall walk in them: but the transgressors shall fall therein.'
+- parent: '10'
+  title: Joel
+  year: -400
+  first_line: 1:1 The word of the LORD that came to Joel the son of Pethuel.
+  last_line: LORD dwelleth in Zion.
+- parent: '10'
+  title: Amos
+  year: -760
+  first_line: 1:1 The words of Amos, who was among the herdmen of Tekoa, which he
+  last_line: thy God.
+- parent: '10'
+  title: Obadiah
+  year: -585
+  first_line: 1:1 The vision of Obadiah. Thus saith the Lord GOD concerning Edom;
+  last_line: Esau; and the kingdom shall be the LORD’s.
+- parent: '10'
+  title: Jonah
+  year: -400
+  first_line: 1:1 Now the word of the LORD came unto Jonah the son of Amittai,
+  last_line: much cattle?
+- parent: '10'
+  title: Micah
+  year: -720
+  first_line: 1:1 The word of the LORD that came to Micah the Morasthite in the
+  last_line: which thou hast sworn unto our fathers from the days of old.
+- parent: '10'
+  title: Nahum
+  year: -650
+  first_line: 1:1 The burden of Nineveh. The book of the vision of Nahum the Elkoshite.
+  last_line: whom hath not thy wickedness passed continually?
+- parent: '10'
+  title: Habakkuk
+  year: -610
+  first_line: 1:1 The burden which Habakkuk the prophet did see.
+  last_line: singer on my stringed instruments.
+- parent: '10'
+  title: Zephaniah
+  year: -630
+  first_line: 1:1 The word of the LORD which came unto Zephaniah the son of Cushi,
+  last_line: of the earth, when I turn back your captivity before your eyes,
+- parent: '10'
+  title: Haggai
+  year: -520
+  first_line: 1:1 In the second year of Darius the king, in the sixth month, in the
+  last_line: 'make thee as a signet: for I have chosen thee, saith the LORD of hosts.'
+- parent: '10'
+  title: Zechariah
+  year: -500
+  first_line: 1:1 In the eighth month, in the second year of Darius, came the word
+  last_line: Canaanite in the house of the LORD of hosts.
+- parent: '10'
+  title: Malachi
+  year: -450
+  first_line: 1:1 The burden of the word of the LORD to Israel by Malachi.
+  last_line: their fathers, lest I come and smite the earth with a curse.
+- parent: '10'
+  title: Matthew
+  year: 80
+  first_line: 1:1 The book of the generation of Jesus Christ, the son of David, the
+  last_line: and, lo, I am with you alway, even unto the end of the world. Amen.
+- parent: '10'
+  title: Mark
+  year: 70
+  first_line: 1:1 The beginning of the gospel of Jesus Christ, the Son of God; 1:2
+  last_line: with them, and confirming the word with signs following. Amen.
+- parent: '10'
+  title: Luke
+  year: 85
+  first_line: 1:1 Forasmuch as many have taken in hand to set forth in order a
+  last_line: God. Amen.
+- parent: '10'
+  title: John
+  year: 95
+  first_line: 1:1 In the beginning was the Word, and the Word was with God, and the
+  last_line: itself could not contain the books that should be written. Amen.
+- parent: '10'
+  title: Acts
+  year: 85
+  first_line: 1:1 The former treatise have I made, O Theophilus, of all that Jesus
+  last_line: with all confidence, no man forbidding him.
+- parent: '10'
+  title: Romans
+  year: 57
+  first_line: 1:1 Paul, a servant of Jesus Christ, called to be an apostle,
+  last_line: Jesus Christ for ever. Amen.
+- parent: '10'
+  title: 1 Corinthians
+  year: 55
+  first_line: 1:1 Paul, called to be an apostle of Jesus Christ through the will of
+  last_line: 16:24 My love be with you all in Christ Jesus. Amen.
+- parent: '10'
+  title: 2 Corinthians
+  year: 56
+  first_line: 1:1 Paul, an apostle of Jesus Christ by the will of God, and Timothy
+  last_line: communion of the Holy Ghost, be with you all. Amen.
+- parent: '10'
+  title: Galatians
+  year: 50
+  first_line: 1:1 Paul, an apostle, (not of men, neither by man, but by Jesus
+  last_line: 6:18 Brethren, the grace of our Lord Jesus Christ be with your spirit.
+- parent: '10'
+  title: Ephesians
+  year: 60
+  first_line: 1:1 Paul, an apostle of Jesus Christ by the will of God, to the
+  last_line: sincerity.
+- parent: '10'
+  title: Philippians
+  year: 61
+  first_line: 1:1 Paul and Timotheus, the servants of Jesus Christ, to all the
+  last_line: 4:23 The grace of our Lord Jesus Christ be with you all. Amen.
+- parent: '10'
+  title: Colossians
+  year: 60
+  first_line: and Timotheus our brother, 1:2 To the saints and faithful brethren
+  last_line: with you. Amen.
+- parent: '10'
+  title: 1 Thessalonians
+  year: 50
+  first_line: 1:1 Paul, and Silvanus, and Timotheus, unto the church of the
+  last_line: 5:28 The grace of our Lord Jesus Christ be with you. Amen.
+- parent: '10'
+  title: 2 Thessalonians
+  year: 51
+  first_line: 'Thessalonians in God our Father and the Lord Jesus Christ: 1:2 Grace'
+  last_line: 3:18 The grace of our Lord Jesus Christ be with you all. Amen.
+- parent: '10'
+  title: 1 Timothy
+  year: 90
+  first_line: 1:1 Paul, an apostle of Jesus Christ by the commandment of God our
+  last_line: Grace be with thee. Amen.
+- parent: '10'
+  title: 2 Timothy
+  year: 90
+  first_line: 1:1 Paul, an apostle of Jesus Christ by the will of God, according to
+  last_line: 4:22 The Lord Jesus Christ be with thy spirit. Grace be with you.
+- parent: '10'
+  title: Titus
+  year: 90
+  first_line: 1:1 Paul, a servant of God, and an apostle of Jesus Christ, according
+  last_line: faith. Grace be with you all. Amen.
+- parent: '10'
+  title: Philemon
+  year: 60
+  first_line: 1:1 Paul, a prisoner of Jesus Christ, and Timothy our brother, unto
+  last_line: 1:25 The grace of our Lord Jesus Christ be with your spirit. Amen.
+- parent: '10'
+  title: Hebrews
+  year: 80
+  first_line: 1:1 God, who at sundry times and in divers manners spake in time past
+  last_line: 13:25 Grace be with you all. Amen.
+- parent: '10'
+  title: James
+  year: 70
+  first_line: 1:1 James, a servant of God and of the Lord Jesus Christ,
+  last_line: multitude of sins.
+- parent: '10'
+  title: 1 Peter
+  year: 80
+  first_line: 1:1 Peter, an apostle of Jesus Christ, to the strangers scattered
+  last_line: all that are in Christ Jesus. Amen.
+- parent: '10'
+  title: 2 Peter
+  year: 110
+  first_line: 1:1 Simon Peter, a servant and an apostle of Jesus Christ, to them
+  last_line: Jesus Christ. To him be glory both now and for ever. Amen.
+- parent: '10'
+  title: 1 John
+  year: 95
+  first_line: 1:1 That which was from the beginning, which we have heard, which we
+  last_line: 5:21 Little children, keep yourselves from idols. Amen.
+- parent: '10'
+  title: 2 John
+  year: 95
+  first_line: 1:1 The elder unto the elect lady and her children, whom I love in
+  last_line: 1:13 The children of thy elect sister greet thee. Amen.
+- parent: '10'
+  title: 3 John
+  year: 95
+  first_line: 1:1 The elder unto the wellbeloved Gaius, whom I love in the truth.
+  last_line: the friends by name.
+- parent: '10'
+  title: Jude
+  year: 90
+  first_line: 1:1 Jude, the servant of Jesus Christ, and brother of James, to them
+  last_line: dominion and power, both now and ever. Amen.
+- parent: '10'
+  title: Revelation
+  year: 95
+  first_line: 1:1 The Revelation of Jesus Christ, which God gave unto him, to shew
+  last_line: 22:21 The grace of our Lord Jesus Christ be with you all. Amen.
+
+# Complete Works of Shakespeare (ebook 100). Years follow the usual composition chronology.
+- parent: '100'
+  title: The Sonnets
+  year: 1609
+  first_line: '1'
+  last_line: THE END
+- parent: '100'
+  title: All's Well That Ends Well
+  year: 1605
+  first_line: ACT I
+  last_line: '[_Exeunt omnes._]'
+- parent: '100'
+  title: Antony and Cleopatra
+  year: 1606
+  first_line: Alexandria. A Room in Cleopatra’s palace.
+  last_line: '[_Exeunt omnes._]'
+- parent: '100'
+  title: As You Like It
+  year: 1599
+  first_line: Scene I. An Orchard near Oliver’s house
+  last_line: offer, when I make curtsy, bid me farewell.
+- parent: '100'
+  title: The Comedy of Errors
+  year: 1594
+  first_line: Scene I. A hall in the Duke’s palace
+  last_line: And now let’s go hand in hand, not one before another.
+- parent: '100'
+  title: Coriolanus
+  year: 1608
+  first_line: Scene I. Rome. A street
+  last_line: '[_Exeunt, bearing the body of Martius. A dead march sounded._]'
+- parent: '100'
+  title: Cymbeline
+  year: 1610
+  first_line: Scene I. Britain. The garden of Cymbeline’s palace.
+  last_line: Ere bloody hands were wash’d, with such a peace.
+- parent: '100'
+  title: Hamlet
+  year: 1600
+  first_line: Scene I. Elsinore. A platform before the Castle
+  last_line: shot off._]
+- parent: '100'
+  title: Henry IV, Part 1
+  year: 1597
+  first_line: Scene I. London. A Room in the Palace.
+  last_line: Let us not leave till all our own be won.
+- parent: '100'
+  title: Henry IV, Part 2
+  year: 1598
+  first_line: INDUCTION
+  last_line: man. My tongue is weary; when my legs are too, I will bid you good
+- parent: '100'
+  title: Henry V
+  year: 1599
+  first_line: Scene I. London. An ante-chamber in the King’s palace.
+  last_line: In your fair minds let this acceptance take.
+- parent: '100'
+  title: Henry VI, Part 1
+  year: 1592
+  first_line: Scene I. Westminster Abbey
+  last_line: But I will rule both her, the King, and realm.
+- parent: '100'
+  title: Henry VI, Part 2
+  year: 1591
+  first_line: Scene I. London. The palace
+  last_line: And more such days as these to us befall!
+- parent: '100'
+  title: Henry VI, Part 3
+  year: 1591
+  first_line: Scene I. London. The Parliament House
+  last_line: For here, I hope, begins our lasting joy.
+- parent: '100'
+  title: Henry VIII
+  year: 1613
+  first_line: Scene I. London. An ante-chamber in the palace
+  last_line: If they hold when their ladies bid ’em clap.
+- parent: '100'
+  title: King John
+  year: 1596
+  first_line: Scene I. Northampton. A Room of State in the Palace.
+  last_line: If England to itself do rest but true.
+- parent: '100'
+  title: Julius Caesar
+  year: 1599
+  first_line: Scene II. The same. A public place
+  last_line: To part the glories of this happy day.
+- parent: '100'
+  title: King Lear
+  year: 1605
+  first_line: Scene I. A Room of State in King Lear’s Palace
+  last_line: '[_Exeunt with a dead march._]'
+- parent: '100'
+  title: Love's Labour's Lost
+  year: 1595
+  first_line: Scene I. The King of Navarre’s park
+  last_line: You that way, we this way.
+- parent: '100'
+  title: Macbeth
+  year: 1606
+  first_line: Scene I. An open Place.
+  last_line: Whom we invite to see us crown’d at Scone.
+- parent: '100'
+  title: Measure for Measure
+  year: 1604
+  first_line: Scene I. An apartment in the Duke’s palace
+  last_line: What’s yet behind that’s meet you all should know.
+- parent: '100'
+  title: The Merchant of Venice
+  year: 1597
+  first_line: Scene I. Venice. A street.
+  last_line: So sore as keeping safe Nerissa’s ring.
+- parent: '100'
+  title: The Merry Wives of Windsor
+  year: 1597
+  first_line: Scene I. Windsor. Before Page’s house
+  last_line: For he tonight shall lie with Mistress Ford.
+- parent: '100'
+  title: A Midsummer Night's Dream
+  year: 1595
+  first_line: Athens. A room in the Palace of Theseus
+  last_line: And Robin shall restore amends.
+- parent: '100'
+  title: Much Ado About Nothing
+  year: 1598
+  first_line: Before Leonato’s House.
+  last_line: '[Dance. Exeunt.]'
+- parent: '100'
+  title: Othello
+  year: 1604
+  first_line: Scene II. Venice. Another street
+  last_line: This heavy act with heavy heart relate.
+- parent: '100'
+  title: Pericles
+  year: 1608
+  first_line: Chorus. Before the palace of Antioch
+  last_line: New joy wait on you! Here our play has ending.
+- parent: '100'
+  title: Richard II
+  year: 1595
+  first_line: Scene I. London. A Room in the palace.
+  last_line: In weeping after this untimely bier.
+- parent: '100'
+  title: Richard III
+  year: 1592
+  first_line: Scene III. London. A Room in the Palace
+  last_line: That she may long live here, God say Amen.
+- parent: '100'
+  title: Romeo and Juliet
+  year: 1595
+  first_line: Scene I. A public place.
+  last_line: Than this of Juliet and her Romeo.
+- parent: '100'
+  title: The Taming of the Shrew
+  year: 1591
+  first_line: Scene I. Before an alehouse on a heath.
+  last_line: ’Tis a wonder, by your leave, she will be tam’d so.
+- parent: '100'
+  title: The Tempest
+  year: 1611
+  first_line: Scene I. On a ship at sea; a tempestuous noise of thunder and lightning
+  last_line: Let your indulgence set me free.
+- parent: '100'
+  title: Timon of Athens
+  year: 1606
+  first_line: Scene I. Athens. A hall in Timon’s house
+  last_line: Let our drums strike.
+- parent: '100'
+  title: Titus Andronicus
+  year: 1592
+  first_line: Scene I. Rome. Before the palace
+  last_line: And being dead, let birds on her take pity.
+- parent: '100'
+  title: Troilus and Cressida
+  year: 1602
+  first_line: Troy. Before Priam’s palace.
+  last_line: And at that time bequeath you my diseases.
+- parent: '100'
+  title: Twelfth Night
+  year: 1601
+  first_line: Scene I. An Apartment in the Duke’s Palace.
+  last_line: And we’ll strive to please you every day._
+- parent: '100'
+  title: The Two Gentlemen of Verona
+  year: 1590
+  first_line: Scene I. Verona. An open place
+  last_line: One feast, one house, one mutual happiness.
+- parent: '100'
+  title: The Two Noble Kinsmen
+  year: 1614
+  first_line: Scene I. Athens. Before a temple
+  last_line: FINIS
+- parent: '100'
+  title: The Winter's Tale
+  year: 1610
+  first_line: Scene I. Sicilia. An Antechamber in Leontes’ Palace.
+  last_line: We were dissever’d. Hastily lead away!
+- parent: '100'
+  title: A Lover's Complaint
+  year: 1609
+  first_line: From off a hill whose concave womb reworded
+  last_line: And new pervert a reconciled maid.’
+- parent: '100'
+  title: The Passionate Pilgrim
+  year: 1599
+  first_line: I do believe her, though I know she lies,
+  last_line: Faithful friend from flatt’ring foe.
+- parent: '100'
+  title: The Phoenix and the Turtle
+  year: 1601
+  first_line: Let the bird of loudest lay,
+  last_line: For these dead birds sigh a prayer.
+- parent: '100'
+  title: The Rape of Lucrece
+  year: 1594
+  first_line: TO THE RIGHT HONOURABLE
+  last_line: To Tarquin’s everlasting banishment.
+- parent: '100'
+  title: Venus and Adonis
+  year: 1593
+  first_line: _Vilia miretur vulgus; mihi flavus Apollo
+  last_line: FINIS

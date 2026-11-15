@@ -80,6 +80,15 @@ CREATE TABLE IF NOT EXISTS signature_terms (
     review_id INTEGER REFERENCES reviews(id),
     UNIQUE (term, work_id)
 );
+CREATE TABLE IF NOT EXISTS themes (
+    id INTEGER PRIMARY KEY,
+    work_id INTEGER NOT NULL REFERENCES works(id),
+    theme TEXT NOT NULL,           -- a short label, as the model wrote it for this work
+    canonical TEXT,                -- the label it was merged into, if another wording of the same theme
+    note TEXT NOT NULL DEFAULT '', -- one sentence on how this work treats the theme
+    model TEXT NOT NULL,           -- the command that produced the label
+    UNIQUE (work_id, theme)
+);
 """
 
 

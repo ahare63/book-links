@@ -10,3 +10,4 @@ viewer/dist/
 viewer/node_modules/
 graph.json
 *.graph.json
+site/

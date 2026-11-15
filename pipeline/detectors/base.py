@@ -20,7 +20,8 @@ class Passage:
 
 @dataclass(frozen=True)
 class Work:
-    """A top-level work (full text or stub). Stubs have no passages."""
+    """A work: a full text, a stub, or a subwork. Stubs and subworks have no passages of their own;
+    a subwork's text is part of its parent's passages."""
 
     id: int
     title: str
@@ -30,6 +31,8 @@ class Work:
     translated: bool
     text_year: int | None = None  # when the held text was written: the translation year, else ``year``
     passages: tuple = ()
+    parent_id: int | None = None
+    span: tuple | None = None  # a subwork's (start, end) character offsets in its parent's text
 
 
 @dataclass(frozen=True)
@@ -40,9 +43,17 @@ class SignatureTerm:
 
 
 @dataclass(frozen=True)
+class ThemeLabel:
+    work_id: int
+    theme: str
+    note: str
+
+
+@dataclass(frozen=True)
 class Corpus:
     works: tuple
     signature_terms: tuple = ()
+    themes: tuple = ()
 
 
 @dataclass

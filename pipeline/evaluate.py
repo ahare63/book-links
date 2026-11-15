@@ -10,7 +10,9 @@ from pipeline.export import build_graph
 
 def resolve(store, ref, title):
     """The work whose source_ref is ``ref`` or, failing that, whose title is ``title``; else None."""
-    row = store.conn.execute("SELECT * FROM works WHERE source_ref = ? ORDER BY id", (str(ref),)).fetchone()
+    row = None
+    if ref is not None:
+        row = store.conn.execute("SELECT * FROM works WHERE source_ref = ? ORDER BY id", (str(ref),)).fetchone()
     if row is None and title:
         row = store.conn.execute("SELECT * FROM works WHERE lower(title) = lower(?) ORDER BY id", (title,)).fetchone()
     return row
@@ -22,13 +24,18 @@ def with_subworks(store, work_id):
 
 
 def side(store, ref, title, part=None):
-    """Ids a gold entry's side may match: the work and its subworks, plus the named part if held
-    separately (``target_part: Hamlet`` also matches a standalone Hamlet). Empty if none is held."""
-    ids = set()
-    for row in (resolve(store, ref, title), resolve(store, None, part) if part else None):
-        if row is not None:
-            ids |= with_subworks(store, row["id"])
-    return ids
+    """Ids a gold entry's side may match. A named part that is held (as a subwork or a standalone
+    work) matches only itself; otherwise the whole work and its subworks match. Empty if none is held."""
+    whole = resolve(store, ref, title)
+    held_part = None
+    if part and whole is not None:
+        held_part = store.conn.execute(
+            "SELECT * FROM works WHERE parent_id = ? AND lower(title) = lower(?)", (whole["id"], part)
+        ).fetchone()
+    if part and held_part is None:
+        held_part = resolve(store, None, part)
+    row = held_part or whole
+    return with_subworks(store, row["id"]) if row is not None else set()
 
 
 def evaluate_gold(store, entries) -> dict:
