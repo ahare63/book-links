@@ -25,6 +25,12 @@ Evidence:
 Use what you know about both works. A title that is a distinctive phrase found in the earlier
 text is usually a real title source; a single everyday word is usually a coincidence.
 
+When the evidence is shared names of people and places, the names only point to a possible link,
+and no shared wording is expected (the works may be in different languages). Accept when, from what
+you know, the later work engages with this particular earlier work: it retells, imitates or answers
+it, reworks its characters or episodes, or discusses it. Reject when the names come from history,
+geography or a common tradition that the later work could have taken from elsewhere.
+
 Reply with one JSON object and nothing else:
 {{"verdict": "accept" or "reject", "confidence": a number from 0 to 1 for how sure you are of the verdict, "rationale": "one or two sentences"}}
 """
