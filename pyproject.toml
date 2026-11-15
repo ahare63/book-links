@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "book-links"
+version = "0.1.0"
+description = "A reviewable graph of links between books: quotation, allusion, shared vocabulary, theme."
+requires-python = ">=3.10"
+dependencies = ["PyYAML>=6", "wordfreq>=3"]
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "ruff>=0.17"]
+
+[project.scripts]
+book-links = "pipeline.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["pipeline*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+src = [".", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]  # the formatter sets line length; prompt text is left as written

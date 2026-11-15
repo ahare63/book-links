@@ -37,7 +37,7 @@ A work enters through one of four sources. The source is recorded on the work.
 | Source | What it is | Notes |
 |---|---|---|
 | `gutenberg-us` | gutenberg.org | Default. Fetch by ebook ID from `https://www.gutenberg.org/cache/epub/{id}/pg{id}.txt`, two seconds between requests, cached locally. The site forbids crawling; do not follow links or loop over ID ranges. Past about 1,000 books, switch to an rsync mirror (`gutenberg.pglaf.org::gutenberg`). |
-| `gutenberg-au` | gutenberg.net.au | For works out of copyright in Australia but not on the US site. Fetch a single file by URL the owner supplies. Check per work that a text file is actually hosted; the Fitzgerald author page listed *Tender Is the Night* without a link on 2026-11-14. |
+| `gutenberg-au` | gutenberg.net.au | For works out of copyright in Australia but not on the US site. Fetch a single file by URL the owner supplies. The site's index of such works is two pages, `https://gutenberg.net.au/plusfifty-a-m.html` and `https://gutenberg.net.au/plusfifty-n-z.html` (authors by surname); text links there have the form `https://gutenberg.net.au/ebooksNN/NNNNNNN.txt`. Author pages on the site can list a title without linking it, so look the work up in the index pages. |
 | `local-file` | A text file the owner supplies | Any text the owner already has. |
 | `stub` | Title, author and year only | For works with no obtainable text. A stub can still receive links through its title, through mentions of it in other texts, and through articles. |
 
@@ -51,11 +51,13 @@ Rules that apply to every source:
 
 About 50 works the owner has read and that are on gutenberg.org, matched from the owner's reading list on 2026-11-14 (IDs are gutenberg.org ebook numbers):
 
-15 Moby-Dick · 20 Paradise Lost · 61 The Communist Manifesto · 84 Frankenstein · 135 Les Misérables · 140 The Jungle · 145 Middlemarch · 147 Common Sense · 150 The Republic · 174 The Picture of Dorian Gray · 175 The Phantom of the Opera · 209 The Turn of the Screw · 228 The Aeneid · 768 Wuthering Heights · 805 This Side of Paradise · 1122 Hamlet · 1232 The Prince · 1260 Jane Eyre · 1280 Spoon River Anthology · 1321 The Waste Land · 1342 Pride and Prejudice · 1533 Macbeth · 1600 Symposium · 1845 Zuleika Dobson · 2199 The Iliad · 2527 The Sorrows of Young Werther · 2680 Meditations · 2814 Dubliners · 3160 The Odyssey · 4217 A Portrait of the Artist as a Young Man · 4300 Ulysses · 4584 Mont-Saint-Michel and Chartres · 7142 History of the Peloponnesian War · 7178 Swann's Way · 8129 A Dreamer's Tales · 8800 The Divine Comedy · 11231 Bartleby · 14460 Faust · 35330 The Spanish Tragedy · 52617 The Decameron · 60962 The Vegetable · 64317 The Great Gatsby · 66057 The Tale of Genji · 67098 Winnie-the-Pooh · 67138 The Sun Also Rises · 71865 Mrs Dalloway · 73011 The House at Pooh Corner · 75011 All Quiet on the Western Front · 75170 The Sound and the Fury · 77600 The Maltese Falcon · 78221 Civilization and Its Discontents
+15 Moby-Dick · 20 Paradise Lost · 61 The Communist Manifesto · 84 Frankenstein · 135 Les Misérables · 140 The Jungle · 145 Middlemarch · 147 Common Sense · 150 The Republic · 174 The Picture of Dorian Gray · 175 The Phantom of the Opera · 209 The Turn of the Screw · 228 The Aeneid · 768 Wuthering Heights · 805 This Side of Paradise · 1524 Hamlet (modern spelling; 1122 is First Folio spelling) · 1232 The Prince · 1260 Jane Eyre · 1280 Spoon River Anthology · 1321 The Waste Land · 1342 Pride and Prejudice · 1533 Macbeth · 1600 Symposium · 1845 Zuleika Dobson · 2199 The Iliad · 2527 The Sorrows of Young Werther · 2680 Meditations · 2814 Dubliners · 3160 The Odyssey · 4217 A Portrait of the Artist as a Young Man · 4300 Ulysses · 4584 Mont-Saint-Michel and Chartres · 7142 History of the Peloponnesian War · 7178 Swann's Way · 8129 A Dreamer's Tales · 8800 The Divine Comedy · 11231 Bartleby · 14460 Faust · 35330 The Spanish Tragedy · 52617 The Decameron · 60962 The Vegetable · 64317 The Great Gatsby · 66057 The Tale of Genji · 67098 Winnie-the-Pooh · 67138 The Sun Also Rises · 71865 Mrs Dalloway · 73011 The House at Pooh Corner · 75011 All Quiet on the Western Front · 75170 The Sound and the Fury · 77600 The Maltese Falcon · 78221 Civilization and Its Discontents
 
 Added as allusion targets: 10 King James Bible · 100 Complete Works of Shakespeare · 23684 Keats, Poems Published in 1820. Verify these three IDs against `pg_catalog.csv` before fetching.
 
-Stubs to add at the start: *Tender Is the Night* (Fitzgerald, 1934) and *Infinite Jest* (Wallace, 1996).
+From `gutenberg-au` at the start: *Tender Is the Night* (Fitzgerald, 1934), `https://gutenberg.net.au/ebooks03/0301261.txt` (supplied by the owner; responded on 2026-11-14, about 620 KB).
+
+Stub to add at the start: *Infinite Jest* (Wallace, 1996).
 
 Poem nodes to declare at the start: "Ode to a Nightingale" inside 23684.
 
@@ -81,7 +83,7 @@ Original publication years come from Wikidata, joined on property P2034 (Project
 
 ## Testing Plan
 
-- An integration test runs the whole pipeline on small real excerpts committed as fixtures: a stanza of "Ode to a Nightingale" containing "tender is the night", a *Ulysses* passage, the Yorick speech from *Hamlet*, and an unrelated control text. It asserts that the stub *Tender Is the Night* links to the Keats text with the matching line as evidence, that the stub *Infinite Jest* links to the *Hamlet* excerpt, and that the control text gets no link.
+- An integration test runs the whole pipeline on small real excerpts committed as fixtures: a stanza of "Ode to a Nightingale" containing "tender is the night", a *Ulysses* passage, the Yorick speech from *Hamlet*, and an unrelated control text. It asserts that a stub titled *Tender Is the Night* links to the Keats text with the matching line as evidence (the test uses a stub so that no in-copyright text is committed as a fixture), that the stub *Infinite Jest* links to the *Hamlet* excerpt, and that the control text gets no link.
 - Per-detector tests use the same fixtures: a known quotation is found, and a common phrase shared by two texts is not reported.
 - A subwork test declares the ode as a subwork of a fixture collection and asserts the link lands on the ode.
 - A direction test asserts that a link never claims a work alludes to one published after it.
@@ -170,7 +172,7 @@ Tasks 9 to 12 are independent of each other and can run in parallel, as can 2, 3
 
 **Question**
 
-- Is the seed corpus right, including the Bible, Shakespeare and Keats additions and the two stubs?
+- Is the seed corpus right, including the Bible, Shakespeare and Keats additions, *Tender Is the Night* from the Australian site, and the *Infinite Jest* stub?
 - For `gutenberg-au` texts under US copyright, is the owner content to fetch them for local analysis, with only short quotes published?
 - How many reviewed links should the checkpoint cover before confidence bands are recalibrated? The working assumption is at least 100.
 - Should the public viewer be hosted (GitHub Pages) once the checkpoint passes, or stay local?
