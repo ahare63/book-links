@@ -3,3 +3,7 @@ __pycache__/
 .venv/
 node_modules/
 .worktrees/
+*.egg-info/
+viewer/dist/
+.pytest_cache/
+*.HEIC

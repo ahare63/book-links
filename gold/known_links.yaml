@@ -1,0 +1,325 @@
+# Gold list of known links. source = the later work; target = the earlier work it draws on.
+- source: au-0301261
+  source_title: Tender Is the Night
+  target: 23684
+  target_title: Keats, Poems Published in 1820
+  target_part: Ode to a Nightingale
+  type: title-source
+  evidence: "Epigraph quotes the Ode to a Nightingale, containing the line 'tender is the night'"
+  basis: "Title and epigraph; universally noted"
+  certainty: high
+- source: stub-infinite-jest
+  source_title: Infinite Jest
+  target: 100
+  target_title: Complete Works of Shakespeare
+  target_part: Hamlet
+  type: title-source
+  evidence: "Hamlet's words over Yorick's skull: 'a fellow of infinite jest'; Yorick's skull is also a plot element"
+  basis: "Title source acknowledged in the novel itself and in all criticism"
+  certainty: high
+- source: 75170
+  source_title: The Sound and the Fury
+  target: 100
+  target_title: Complete Works of Shakespeare
+  target_part: Macbeth
+  type: title-source
+  evidence: "Macbeth's speech on life as 'a tale told by an idiot, full of sound and fury, signifying nothing'"
+  basis: "Title is the phrase from Macbeth 5.5; standard commonplace"
+  certainty: high
+- source: 67138
+  source_title: The Sun Also Rises
+  target: 10
+  target_title: King James Bible
+  target_part: Ecclesiastes
+  type: title-source
+  evidence: "Epigraph from Ecclesiastes (one generation passeth away, another cometh; the earth abideth for ever); title from 'The sun also ariseth'"
+  basis: "Epigraph and title; stated on the face of the book"
+  certainty: high
+- source: 4300
+  source_title: Ulysses
+  target: 3160
+  target_title: The Odyssey
+  type: allusion
+  evidence: "Title, Leopold Bloom as Odysseus, Stephen as Telemachus, Molly as Penelope; episodes named after Odyssey scenes in the Linati/Gilbert schemas"
+  basis: "Foundational structural parallel; Joyce's own schema"
+  certainty: high
+- source: 4300
+  source_title: Ulysses
+  target: 100
+  target_title: Complete Works of Shakespeare
+  target_part: Hamlet
+  type: mention
+  evidence: "Stephen's Hamlet theory in the library episode; the ghost, Elsinore and Hamlet are named repeatedly"
+  basis: "Standard critical commonplace; extended discussion in the Scylla and Charybdis episode"
+  certainty: high
+- source: 1321
+  source_title: The Waste Land
+  target: 100
+  target_title: Complete Works of Shakespeare
+  target_part: Hamlet
+  type: quotation
+  evidence: "Closing of 'A Game of Chess': 'Good night, ladies, good night, sweet ladies', Ophelia's farewell in Act 4"
+  basis: "Eliot's allusion, noted in all annotated editions"
+  certainty: high
+- source: 1321
+  source_title: The Waste Land
+  target: 8800
+  target_title: The Divine Comedy
+  type: quotation
+  evidence: "Italian epigraph from Inferno 27 (Guido da Montefeltro); 'I had not thought death had undone so many' echoes Inferno 3; dedication to Pound as 'il miglior fabbro' from Purgatorio 26"
+  basis: "Epigraph and Eliot's notes; standard critical commonplace"
+  certainty: high
+- source: 1321
+  source_title: The Waste Land
+  target: 100
+  target_title: Complete Works of Shakespeare
+  target_part: The Tempest
+  type: quotation
+  evidence: "'Those are pearls that were his eyes', from Ariel's song, repeated in the poem; Eliot's note cites The Tempest"
+  basis: "Eliot's own notes"
+  certainty: high
+- source: 1321
+  source_title: The Waste Land
+  target: 35330
+  target_title: The Spanish Tragedy
+  type: quotation
+  evidence: "Final section ends with the line 'Why then Ile fit you. Hieronymo's mad againe.'"
+  basis: "Quoted by name in the poem; noted in Eliot's notes and annotated editions"
+  certainty: high
+- source: 1321
+  source_title: The Waste Land
+  target: 10
+  target_title: King James Bible
+  target_part: Ezekiel
+  type: allusion
+  evidence: "'Son of man' address in the first section echoes Ezekiel's calling; the poem also echoes Ecclesiastes (not asserted here)"
+  basis: "Standard annotation of 'The Burial of the Dead'"
+  certainty: medium
+- source: 15
+  source_title: Moby-Dick
+  target: 10
+  target_title: King James Bible
+  target_part: Jonah
+  type: allusion
+  evidence: "Father Mapple's sermon on Jonah and the whale; Jonah is retold at length in the chapter 'The Sermon'"
+  basis: "Plain in the text; standard critical commonplace"
+  certainty: high
+- source: 15
+  source_title: Moby-Dick
+  target: 10
+  target_title: King James Bible
+  target_part: Genesis
+  type: allusion
+  evidence: "Opening 'Call me Ishmael'; Ishmael is the outcast son of Abraham, and Ahab is a Biblical king's name"
+  basis: "First sentence of the novel; standard critical commonplace"
+  certainty: high
+- source: 15
+  source_title: Moby-Dick
+  target: 10
+  target_title: King James Bible
+  target_part: Job
+  type: allusion
+  evidence: "Leviathan: the whale is treated through Job's Leviathan; the Bible is cited in the cetology chapters"
+  basis: "Standard scholarship on Melville's Biblical sources"
+  certainty: medium
+- source: 84
+  source_title: Frankenstein
+  target: 20
+  target_title: Paradise Lost
+  type: quotation
+  evidence: "Title-page epigraph from Paradise Lost: 'Did I request thee, Maker, from my clay / To mould me Man...'; the creature also reads Paradise Lost"
+  basis: "Epigraph; the creature's reading is explicit in the text"
+  certainty: high
+- source: 71865
+  source_title: Mrs Dalloway
+  target: 100
+  target_title: Complete Works of Shakespeare
+  target_part: Cymbeline
+  type: quotation
+  evidence: "Repeated refrain 'Fear no more the heat o' the sun', the dirge from Cymbeline"
+  basis: "Recurring line in the novel; standard critical commonplace"
+  certainty: high
+- source: 20
+  source_title: Paradise Lost
+  target: 228
+  target_title: The Aeneid
+  type: mention
+  evidence: "Book 9 proem compares the poem's subject with the wrath of Turnus and the fate of Aeneas; epic form and invocations follow Virgil"
+  basis: "Milton's own statement in Book 9; standard critical commonplace"
+  certainty: high
+- source: 20
+  source_title: Paradise Lost
+  target: 2199
+  target_title: The Iliad
+  type: mention
+  evidence: "Book 9 proem names Achilles' wrath among the 'argument' of earlier epics that Milton claims to surpass"
+  basis: "Milton's own statement in Book 9"
+  certainty: high
+- source: 20
+  source_title: Paradise Lost
+  target: 10
+  target_title: King James Bible
+  target_part: Genesis
+  type: theme
+  evidence: "Retelling of the fall in Genesis 1 to 3: Adam, Eve, the serpent, the forbidden fruit"
+  basis: "Subject of the poem as stated in its opening lines"
+  certainty: high
+- source: 228
+  source_title: The Aeneid
+  target: 2199
+  target_title: The Iliad
+  type: allusion
+  evidence: "Books 7 to 12 are an Iliadic war narrative; Aeneas is a Trojan hero from the Iliad"
+  basis: "Standard critical commonplace"
+  certainty: high
+- source: 228
+  source_title: The Aeneid
+  target: 3160
+  target_title: The Odyssey
+  type: allusion
+  evidence: "Books 1 to 6 are an Odyssean wandering narrative, including the visit to the underworld and Dido's feast, modeled on Alcinous"
+  basis: "Standard critical commonplace"
+  certainty: high
+- source: 8800
+  source_title: The Divine Comedy
+  target: 228
+  target_title: The Aeneid
+  type: mention
+  evidence: "Virgil appears as Dante's guide through Hell and Purgatory and speaks of Aeneas' descent"
+  basis: "Plain on the face of the text"
+  certainty: high
+- source: 1122
+  source_title: Hamlet
+  target: 35330
+  target_title: The Spanish Tragedy
+  type: theme
+  evidence: "Ghost demanding revenge, a revenge plot with a play within a play, and a madness motif"
+  basis: "Standard literary history of the revenge tragedy; Kyd as the model for Shakespeare"
+  certainty: medium
+- source: 14460
+  source_title: Faust
+  target: 10
+  target_title: King James Bible
+  target_part: Job
+  type: allusion
+  evidence: "The Prologue in Heaven, a wager between God and Mephistopheles over a righteous man"
+  basis: "Standard critical commonplace; Goethe's own acknowledged model"
+  certainty: high
+- source: 2527
+  source_title: The Sorrows of Young Werther
+  target: 3160
+  target_title: The Odyssey
+  type: mention
+  evidence: "Werther reads Homer and describes his reading; the swineherd episode is referred to"
+  basis: "Named reference in the letters"
+  certainty: medium
+- source: 1260
+  source_title: Jane Eyre
+  target: 10
+  target_title: King James Bible
+  target_part: Revelation
+  type: quotation
+  evidence: "The closing paragraphs quote St. John's last words: 'Surely I come quickly' and 'Amen; even so come, Lord Jesus'"
+  basis: "Final lines of the novel"
+  certainty: high
+- source: 768
+  source_title: Wuthering Heights
+  target: 10
+  target_title: King James Bible
+  target_part: Matthew
+  type: allusion
+  evidence: "Lockwood's dream of the sermon 'Seventy Times Seven' by Jabes Branderham refers to forgiveness, the saying of Jesus on forgiving seventy times seven"
+  basis: "Standard annotation of chapter 3"
+  certainty: medium
+- source: 175
+  source_title: The Phantom of the Opera
+  target: 14460
+  target_title: Faust
+  type: mention
+  evidence: "The Paris Opera performs Faust (Gounod's opera, based on Goethe) at the opening and at the climax; the Phantom is repeatedly compared to Mephistopheles"
+  basis: "Plain in the text; standard critical commonplace. The direct link is to the Gounod opera, so this is a link to the Goethe subject"
+  certainty: medium
+- source: 11231
+  source_title: Bartleby
+  target: 10
+  target_title: King James Bible
+  target_part: Job
+  type: quotation
+  evidence: "The final scene, the narrator recalls Bartleby sleeping 'with kings and counsellors', the phrasing of Job 3, and 'Ah Bartleby! Ah humanity!' follows"
+  basis: "Standard annotation; wording of the Biblical phrase not verified against the corpus text"
+  certainty: medium
+- source: 7178
+  source_title: Swann's Way
+  target: 10
+  target_title: King James Bible
+  target_part: Exodus
+  type: allusion
+  evidence: "Swann sees Odette as Botticelli's Zipporah, Jethro's daughter in the Sistine fresco; Zipporah is named in the text"
+  basis: "Named reference; standard critical commonplace"
+  certainty: medium
+- source: 78221
+  source_title: Civilization and Its Discontents
+  target: 10
+  target_title: King James Bible
+  target_part: Leviticus
+  type: mention
+  evidence: "Extended discussion of the commandment 'Thou shalt love thy neighbour as thyself'"
+  basis: "Chapter 5 is centered on this commandment"
+  certainty: high
+- source: 147
+  source_title: Common Sense
+  target: 10
+  target_title: King James Bible
+  target_part: 1 Samuel
+  type: mention
+  evidence: "Argument against monarchy from the Israelites' demand for a king, Gideon and Samuel"
+  basis: "Plain on the face of the text"
+  certainty: high
+- source: 7142
+  source_title: History of the Peloponnesian War
+  target: 2199
+  target_title: The Iliad
+  type: mention
+  evidence: "The 'Archaeology' (Book 1) cites Homer on the expedition of Agamemnon and the Trojan War as evidence for early Greek power"
+  basis: "Plain on the face of the text; standard critical commonplace"
+  certainty: high
+- source: 150
+  source_title: The Republic
+  target: 2199
+  target_title: The Iliad
+  type: mention
+  evidence: "Books 2, 3 and 10 criticize Homer and quote his verses; Socrates names Homer, Achilles and Priam"
+  basis: "Plain on the face of the text"
+  certainty: high
+- source: 2680
+  source_title: Meditations
+  target: 150
+  target_title: The Republic
+  type: mention
+  evidence: "Marcus tells himself not to hope for Plato's Republic (book 9)"
+  basis: "Named reference; exact book and wording should be checked against the corpus text"
+  certainty: medium
+- source: 1232
+  source_title: The Prince
+  target: 228
+  target_title: The Aeneid
+  type: quotation
+  evidence: "Chapter 17 quotes Dido's justification in the Aeneid, beginning 'Res dura et regni novitas'"
+  basis: "Machiavelli names Virgil; standard annotation"
+  certainty: high
+- source: 73011
+  source_title: The House at Pooh Corner
+  target: 67098
+  target_title: Winnie-the-Pooh
+  type: shared-vocabulary
+  evidence: "Same cast and place names: Pooh, Piglet, Eeyore, Christopher Robin, Owl, Rabbit, Hundred Acre Wood"
+  basis: "Sequel by the same author"
+  certainty: high
+- source: 23684
+  source_title: Keats, Poems Published in 1820
+  target: 20
+  target_title: Paradise Lost
+  type: allusion
+  evidence: "Hyperion: a fall of Titans modeled on the fallen angels, with Miltonic blank verse and the council scenes"
+  basis: "Standard critical commonplace, noted by Keats himself and in all criticism"
+  certainty: medium
