@@ -37,10 +37,10 @@ def phrase_for(title):
 
 def without_articles(phrase):
     """A phrase from ``phrase_for`` with every article removed, or None if nothing is left."""
-    kept = [(o, l) for o, l in zip(*phrase) if l not in ARTICLES]
+    kept = [(word, lower) for word, lower in zip(*phrase, strict=True) if lower not in ARTICLES]
     if not kept:
         return None
-    return tuple(o for o, _ in kept), tuple(l for _, l in kept)
+    return tuple(word for word, _ in kept), tuple(lower for _, lower in kept)
 
 
 def one_word_weight(word):
@@ -73,9 +73,9 @@ class PhraseIndex:
         for i, lower in enumerate(lowers):
             for key, original, phrase in self.by_first.get(lower, ()):
                 n = len(phrase)
-                if tuple(lowers[i:i + n]) != phrase:
+                if tuple(lowers[i : i + n]) != phrase:
                     continue
-                if as_printed and not self._printed_alike(tokens[i:i + n], original, phrase):
+                if as_printed and not self._printed_alike(tokens[i : i + n], original, phrase):
                     continue
                 yield key, i, i + n - 1
 
@@ -85,7 +85,7 @@ class PhraseIndex:
             return tokens[0][0].replace("’", "'") == original[0].replace("’", "'")
         return all(
             token[0][0].isupper()
-            for token, word, lower in zip(tokens, original, phrase)
+            for token, word, lower in zip(tokens, original, phrase, strict=True)
             if word[0].isupper() and lower not in SMALL_WORDS
         )
 
@@ -127,14 +127,16 @@ class TitleDetector(Detector):
                 work, (_, lower) = titled[wid]
                 hits = sorted(found[wid].values(), key=lambda h: (-h[0], h[1]))[:EVIDENCE_PER_CANDIDATE]
                 evidence = [Evidence(target_passage_id=pid, target_quote=quote) for _, _, pid, quote in hits]
-                candidates.append(Candidate(
-                    source_id=wid,
-                    target_id=text_work.id,
-                    type="title-source",
-                    score=self.score(lower),
-                    rationale=f"The title \"{work.title}\" appears in the text of \"{text_work.title}\".",
-                    evidence=evidence,
-                ))
+                candidates.append(
+                    Candidate(
+                        source_id=wid,
+                        target_id=text_work.id,
+                        type="title-source",
+                        score=self.score(lower),
+                        rationale=f'The title "{work.title}" appears in the text of "{text_work.title}".',
+                        evidence=evidence,
+                    )
+                )
         return candidates
 
     @staticmethod

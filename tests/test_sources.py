@@ -104,8 +104,14 @@ def test_add_book_for_a_missing_id_fails_without_adding_a_work(corpus, site):
 
 def test_add_url_takes_a_text_from_the_australian_site(corpus, site, monkeypatch):
     corpus.run(
-        "add-url", site.url + "/ebooks03/0301261.txt",
-        "--title", "Borrowed Text", "--author", "Some Author", "--year", "1934",
+        "add-url",
+        site.url + "/ebooks03/0301261.txt",
+        "--title",
+        "Borrowed Text",
+        "--author",
+        "Some Author",
+        "--year",
+        "1934",
     )
     corpus.add_stub("Infinite Jest", "David Foster Wallace", 1996)
     corpus.run("detect")

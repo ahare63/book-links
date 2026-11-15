@@ -101,8 +101,9 @@ def post_review(base, payload):
 def find(graph, source_title, target_title):
     titles = {w["id"]: w["title"] for w in graph["works"]}
     return [
-        l for l in graph["links"]
-        if titles[l["source"]] == source_title and titles[l["target"]] == target_title
+        link
+        for link in graph["links"]
+        if titles[link["source"]] == source_title and titles[link["target"]] == target_title
     ]
 
 
@@ -179,8 +180,13 @@ def test_a_review_posted_without_a_json_content_type_is_refused(server):
     host = server.removeprefix("http://")
     body = review_body(get_graph(server))
 
-    status = raw_request(server, "POST", "/api/review", body,
-                         {"Host": host, "Content-Type": "text/plain", "Content-Length": str(len(body))})
+    status = raw_request(
+        server,
+        "POST",
+        "/api/review",
+        body,
+        {"Host": host, "Content-Type": "text/plain", "Content-Length": str(len(body))},
+    )
 
     assert status == 403
     assert find(get_graph(server), "Infinite Jest", "Hamlet")[0]["reviewed"] is False
@@ -190,8 +196,13 @@ def test_a_request_for_another_host_name_is_refused(server):
     port = server.rsplit(":", 1)[1]
     body = review_body(get_graph(server))
 
-    post = raw_request(server, "POST", "/api/review", body, {
-        "Host": f"attacker.example:{port}", "Content-Type": "application/json", "Content-Length": str(len(body))})
+    post = raw_request(
+        server,
+        "POST",
+        "/api/review",
+        body,
+        {"Host": f"attacker.example:{port}", "Content-Type": "application/json", "Content-Length": str(len(body))},
+    )
     get = raw_request(server, "GET", "/graph.json", headers={"Host": f"attacker.example:{port}"})
 
     assert (post, get) == (403, 403)
@@ -201,8 +212,9 @@ def test_a_request_for_another_host_name_is_refused(server):
 def test_a_review_with_a_bad_length_is_refused(server):
     host = server.removeprefix("http://")
 
-    status = raw_request(server, "POST", "/api/review", b"",
-                         {"Host": host, "Content-Type": "application/json", "Content-Length": "-1"})
+    status = raw_request(
+        server, "POST", "/api/review", b"", {"Host": host, "Content-Type": "application/json", "Content-Length": "-1"}
+    )
 
     assert status == 400
 
@@ -210,7 +222,9 @@ def test_a_review_with_a_bad_length_is_refused(server):
 def test_static_files_outside_the_viewer_are_not_served(server):
     host = server.removeprefix("http://")
 
-    statuses = {raw_request(server, "GET", path, headers={"Host": host})
-                for path in ("/../pyproject.toml", "/%2e%2e/pyproject.toml", "/..%2fpyproject.toml", "/%00")}
+    statuses = {
+        raw_request(server, "GET", path, headers={"Host": host})
+        for path in ("/../pyproject.toml", "/%2e%2e/pyproject.toml", "/..%2fpyproject.toml", "/%00")
+    }
 
     assert statuses == {404}

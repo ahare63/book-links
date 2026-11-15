@@ -44,19 +44,20 @@ def evaluate_gold(store, entries) -> dict:
             skipped += 1
             continue
         total += 1
-        detectors = {l["detector"] for l in standing if l["source"] in sources and l["target"] in targets}
+        detectors = {link["detector"] for link in standing if link["source"] in sources and link["target"] in targets}
         if detectors:
             found += 1
             for name in detectors:
                 by_detector[name]["found"] += 1
         else:
-            missing.append({
-                "source_title": entry.get("source_title"),
-                "target_title": entry.get("target_title"),
-                "type": entry.get("type"),
-            })
-    return {"total": total, "found": found, "skipped": skipped, "missing": missing,
-            "by_detector": dict(by_detector)}
+            missing.append(
+                {
+                    "source_title": entry.get("source_title"),
+                    "target_title": entry.get("target_title"),
+                    "type": entry.get("type"),
+                }
+            )
+    return {"total": total, "found": found, "skipped": skipped, "missing": missing, "by_detector": dict(by_detector)}
 
 
 def evaluate(store, args):
@@ -65,7 +66,9 @@ def evaluate(store, args):
     if args.json:
         print(json.dumps(report, ensure_ascii=False))
         return
-    print(f"recall: {report['found']}/{report['total']} gold links found and not rejected ({report['skipped']} skipped: works not in the corpus)")
+    print(
+        f"recall: {report['found']}/{report['total']} gold links found and not rejected ({report['skipped']} skipped: works not in the corpus)"
+    )
     for name, counts in sorted(report["by_detector"].items()):
         print(f"  {name}: {counts['found']}")
     for entry in report["missing"]:

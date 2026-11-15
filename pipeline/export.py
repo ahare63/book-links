@@ -23,8 +23,7 @@ def build_graph(store) -> dict:
     ]
     judgements = {row["evidence_key"]: row for row in store.conn.execute("SELECT * FROM judgements")}
     reviews = {
-        (row["source_id"], row["target_id"], row["type"]): row
-        for row in store.conn.execute("SELECT * FROM reviews")
+        (row["source_id"], row["target_id"], row["type"]): row for row in store.conn.execute("SELECT * FROM reviews")
     }
     citations = dict(store.conn.execute("SELECT id, citation FROM articles"))
     evidence = {}

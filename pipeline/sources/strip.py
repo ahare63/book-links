@@ -43,7 +43,7 @@ def strip_licence(text):
     start, end = START.search(text), None
     if start:
         end = END.search(text, start.end())
-        body_from = start.end() + 1 if text[start.end():start.end() + 1] == "\n" else start.end()
+        body_from = start.end() + 1 if text[start.end() : start.end() + 1] == "\n" else start.end()
         return text[body_from : end.start() if end else len(text)], (None if end else "no END marker")
     if AU_NAME.search("\n".join(text.split("\n")[:AU_HEADER_LINES])):
         return _strip_australian(text)

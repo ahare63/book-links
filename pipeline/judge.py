@@ -38,10 +38,14 @@ def describe(work) -> str:
 def build_prompt(store, link) -> str:
     lines = []
     for number, row in enumerate(
-        store.conn.execute("SELECT source_quote, target_quote FROM evidence WHERE link_id = ? ORDER BY id", (link["id"],)),
+        store.conn.execute(
+            "SELECT source_quote, target_quote FROM evidence WHERE link_id = ? ORDER BY id", (link["id"],)
+        ),
         start=1,
     ):
-        lines.append(f"{number}. In the later work: {row['source_quote'] or '(no text available; only the title is known)'}")
+        lines.append(
+            f"{number}. In the later work: {row['source_quote'] or '(no text available; only the title is known)'}"
+        )
         lines.append(f"   In the earlier work: {row['target_quote'] or '(no text available)'}")
     return PROMPT.format(
         source=describe(store.work(link["source_id"])),
@@ -74,7 +78,7 @@ def judge(store, args=None):
     # The model calls run a few at a time; results are saved here, in link order, as they finish.
     with ThreadPoolExecutor(max_workers=WORKERS) as pool:
         futures = [pool.submit(ask_about, prompt) for prompt in prompts]
-        for link, future in zip(pending, futures):
+        for link, future in zip(pending, futures, strict=True):
             result = future.result()
             if isinstance(result, Exception):
                 failed += 1

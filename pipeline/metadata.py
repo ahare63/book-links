@@ -26,9 +26,7 @@ def register(commands):
 def years(store, args):
     missing = {
         row["source_ref"]: row["id"]
-        for row in store.conn.execute(
-            "SELECT id, source_ref FROM works WHERE source = 'gutenberg-us' AND year IS NULL"
-        )
+        for row in store.conn.execute("SELECT id, source_ref FROM works WHERE source = 'gutenberg-us' AND year IS NULL")
     }
     if not missing:
         return 0

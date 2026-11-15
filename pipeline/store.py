@@ -113,13 +113,22 @@ class Store:
         if author is None:
             row = self.conn.execute("SELECT * FROM works WHERE title = ?", (title,)).fetchone()
         else:
-            row = self.conn.execute(
-                "SELECT * FROM works WHERE title = ? AND author = ?", (title, author)
-            ).fetchone()
+            row = self.conn.execute("SELECT * FROM works WHERE title = ? AND author = ?", (title, author)).fetchone()
         return row
 
-    def add_work(self, title, author, year, source, kind, source_ref=None, parent_id=None,
-                 start_pos=None, end_pos=None, text_year=None):
+    def add_work(
+        self,
+        title,
+        author,
+        year,
+        source,
+        kind,
+        source_ref=None,
+        parent_id=None,
+        start_pos=None,
+        end_pos=None,
+        text_year=None,
+    ):
         """Insert a work and return its id. A work with the same title and author is reused.
 
         ``text_year`` is the year a translation was made; giving it marks the work as translated.
@@ -130,7 +139,19 @@ class Store:
         cursor = self.conn.execute(
             "INSERT INTO works (title, author, year, source, source_ref, kind, parent_id, start_pos, end_pos, translated, text_year)"
             " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (title, author, year, source, source_ref, kind, parent_id, start_pos, end_pos, int(text_year is not None), text_year),
+            (
+                title,
+                author,
+                year,
+                source,
+                source_ref,
+                kind,
+                parent_id,
+                start_pos,
+                end_pos,
+                int(text_year is not None),
+                text_year,
+            ),
         )
         return cursor.lastrowid
 
@@ -159,11 +180,7 @@ class Store:
         )
 
     def passages(self, work_id):
-        return self.conn.execute(
-            "SELECT * FROM passages WHERE work_id = ? ORDER BY seq", (work_id,)
-        ).fetchall()
+        return self.conn.execute("SELECT * FROM passages WHERE work_id = ? ORDER BY seq", (work_id,)).fetchall()
 
     def has_passages(self, work_id):
-        return self.conn.execute(
-            "SELECT 1 FROM passages WHERE work_id = ? LIMIT 1", (work_id,)
-        ).fetchone() is not None
+        return self.conn.execute("SELECT 1 FROM passages WHERE work_id = ? LIMIT 1", (work_id,)).fetchone() is not None

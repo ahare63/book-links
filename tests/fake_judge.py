@@ -27,7 +27,11 @@ if log:
 for phrase, confidence in ACCEPT.items():
     if phrase in prompt:
         print("Here is my assessment.")
-        print(json.dumps({"verdict": "accept", "confidence": confidence, "rationale": f"The phrase '{phrase}' is shared."}))
+        print(
+            json.dumps(
+                {"verdict": "accept", "confidence": confidence, "rationale": f"The phrase '{phrase}' is shared."}
+            )
+        )
         break
 else:
     print(json.dumps({"verdict": "reject", "confidence": 0.9, "rationale": "A common word, not a reference."}))

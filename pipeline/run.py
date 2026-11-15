@@ -17,8 +17,18 @@ def load_corpus(store) -> Corpus:
             continue
         passages = tuple(Passage(p["id"], p["position"], p["text"]) for p in store.passages(row["id"]))
         text_year = row["text_year"] if row["text_year"] is not None else row["year"]
-        works.append(Work(row["id"], row["title"], row["author"], row["year"], row["kind"],
-                          bool(row["translated"]), text_year, passages))
+        works.append(
+            Work(
+                row["id"],
+                row["title"],
+                row["author"],
+                row["year"],
+                row["kind"],
+                bool(row["translated"]),
+                text_year,
+                passages,
+            )
+        )
     terms = tuple(
         SignatureTerm(row["term"], row["work_id"], row["weight"])
         for row in store.conn.execute("SELECT term, work_id, weight FROM signature_terms")
@@ -92,10 +102,8 @@ def detect(store, args=None):
                 best[key] = (detector, candidate)
 
     ran = [detector.name for detector in DETECTORS]
-    marks = ",".join("?" for _ in ran)
     existing = {
-        (row["source_id"], row["target_id"], row["type"]): row
-        for row in store.conn.execute("SELECT * FROM links")
+        (row["source_id"], row["target_id"], row["type"]): row for row in store.conn.execute("SELECT * FROM links")
     }
     for key, row in existing.items():
         if row["detector"] in ran and key not in best and row["article_id"] is None:
@@ -128,8 +136,10 @@ def detect(store, args=None):
         store.conn.executemany(
             "INSERT INTO evidence (link_id, source_passage_id, target_passage_id, source_quote, target_quote)"
             " VALUES (?, ?, ?, ?, ?)",
-            [(link_id, e.source_passage_id, e.target_passage_id, e.source_quote, e.target_quote)
-             for e in candidate.evidence],
+            [
+                (link_id, e.source_passage_id, e.target_passage_id, e.source_quote, e.target_quote)
+                for e in candidate.evidence
+            ],
         )
     print(f"{len(best)} candidate links from {len(ran)} detectors")
 

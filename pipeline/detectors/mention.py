@@ -3,8 +3,7 @@
 from collections import defaultdict
 
 from pipeline.detectors.base import Candidate, Detector, Evidence, snippet
-from pipeline.detectors.title import (ARTICLES, EVIDENCE_PER_CANDIDATE, PhraseIndex, one_word_weight,
-                                      phrase_for, words)
+from pipeline.detectors.title import ARTICLES, EVIDENCE_PER_CANDIDATE, PhraseIndex, one_word_weight, phrase_for, words
 
 
 class MentionDetector(Detector):
@@ -50,15 +49,17 @@ class MentionDetector(Detector):
                 author = phrase_for(work.author)
                 with_author = author is not None and author[1] in named
                 hits = sorted(found[wid].values(), key=lambda h: (-h[0], h[1]))[:EVIDENCE_PER_CANDIDATE]
-                candidates.append(Candidate(
-                    source_id=text_work.id,
-                    target_id=wid,
-                    type="mention",
-                    score=self.score(lower, with_author),
-                    rationale=f"\"{text_work.title}\" names \"{work.title}\""
-                              + (f" and its author {work.author}." if with_author else "."),
-                    evidence=[Evidence(source_passage_id=pid, source_quote=quote) for _, _, pid, quote in hits],
-                ))
+                candidates.append(
+                    Candidate(
+                        source_id=text_work.id,
+                        target_id=wid,
+                        type="mention",
+                        score=self.score(lower, with_author),
+                        rationale=f'"{text_work.title}" names "{work.title}"'
+                        + (f" and its author {work.author}." if with_author else "."),
+                        evidence=[Evidence(source_passage_id=pid, source_quote=quote) for _, _, pid, quote in hits],
+                    )
+                )
         return candidates
 
     @staticmethod

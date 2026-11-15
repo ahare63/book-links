@@ -65,7 +65,7 @@ def _locate(store, entry):
         return f"{entry['title']}: last line {entry['last_line']!r} not found after the first line in {name!r}"
 
     start = lines[first_at][0]
-    end = lines[last_at][0] + len(text[lines[last_at][0]:].split("\n", 1)[0])
+    end = lines[last_at][0] + len(text[lines[last_at][0] :].split("\n", 1)[0])
     return parent, entry, start, end
 
 

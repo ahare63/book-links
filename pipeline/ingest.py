@@ -28,8 +28,9 @@ def register(commands):
     parser.add_argument("--title")
     parser.add_argument("--author")
     parser.add_argument("--year", type=int)
-    parser.add_argument("--translation-year", type=int, metavar="YEAR",
-                        help="for a translation: the year the translation was made")
+    parser.add_argument(
+        "--translation-year", type=int, metavar="YEAR", help="for a translation: the year the translation was made"
+    )
     parser.set_defaults(func=add_book)
 
     parser = commands.add_parser("add-url", help="add a work from a single file on gutenberg.net.au")
@@ -42,8 +43,9 @@ def _describe(parser, required_year):
     parser.add_argument("--title", required=True)
     parser.add_argument("--author", required=True)
     parser.add_argument("--year", type=int, required=required_year)
-    parser.add_argument("--translation-year", type=int, metavar="YEAR",
-                        help="for a translation: the year the translation was made")
+    parser.add_argument(
+        "--translation-year", type=int, metavar="YEAR", help="for a translation: the year the translation was made"
+    )
 
 
 def texts_dir(store):

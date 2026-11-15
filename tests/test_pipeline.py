@@ -56,7 +56,9 @@ def test_header_without_spaces_around_the_marker_is_still_stripped(corpus):
         "The river ran slowly past the mill and the miller slept.\n\n"
         "***END OF THE PROJECT GUTENBERG EBOOK AN OLD FILE***\n\n"
         "Donations to the Lantern Fish Society are welcome.\n",
-        "An Old File", "Old Author", 1850,
+        "An Old File",
+        "Old Author",
+        1850,
     )
     corpus.add_stub("Lantern Fish Society", "Nobody", 2001)
     corpus.add_stub("The Miller Slept", "Nobody", 2002)
@@ -90,12 +92,16 @@ def test_adding_the_same_work_twice_keeps_one_node(seeded):
 def test_no_link_claims_a_work_draws_on_a_later_one(seeded):
     seeded.add_text(
         "All that winter I read Ulysses by the stove, and when the snow went I began it again.",
-        "A Winter Notebook", "Mary Reader", 1950,
+        "A Winter Notebook",
+        "Mary Reader",
+        1950,
     )
     seeded.add_stub("The Glass Orchard", "Old Novelist", 1850)
     seeded.add_text(
         "My aunt kept a copy of The Glass Orchard on the shelf above the piano.",
-        "Piano Lessons", "Later Writer", 1900,
+        "Piano Lessons",
+        "Later Writer",
+        1900,
     )
 
     graph = run_all(seeded)
@@ -109,7 +115,9 @@ def test_a_later_text_naming_an_earlier_title_is_a_mention_of_it(corpus):
     corpus.add_stub("The Glass Orchard", "Old Novelist", 1850)
     corpus.add_text(
         "My aunt kept a copy of The Glass Orchard on the shelf above the piano.",
-        "Piano Lessons", "Later Writer", 1900,
+        "Piano Lessons",
+        "Later Writer",
+        1900,
     )
     corpus.run("detect")
 

@@ -18,7 +18,9 @@ def with_article_model(seeded, monkeypatch):
 def add_survey(corpus):
     corpus.add_text(
         "The surveyor corrected for parallax and wrote the figure in his book before the light went.",
-        "The Survey", "Field Writer", 1950,
+        "The Survey",
+        "Field Writer",
+        1950,
     )
 
 
@@ -61,7 +63,9 @@ def test_signature_terms_never_link_an_earlier_work_to_a_later_one(with_article_
     corpus = with_article_model
     corpus.add_text(
         "The astronomer measured the parallax of the star over six months.",
-        "Star Tables", "Victorian Astronomer", 1880,
+        "Star Tables",
+        "Victorian Astronomer",
+        1880,
     )
     corpus.run("add-article", ARTICLE)
     corpus.run("detect")

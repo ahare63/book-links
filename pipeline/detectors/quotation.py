@@ -15,7 +15,8 @@ SPANS_PER_PAIR = 5
 _WORD = re.compile(r"[^\W\d_]+(?:'[^\W\d_]+)*")
 _ROMAN = re.compile(r"m{0,3}(cm|cd|d?c{0,3})(xc|xl|l?x{0,3})(ix|iv|v?i{0,3})")
 
-STOP_WORDS = frozenset("""
+STOP_WORDS = frozenset(
+    """
 a about above across after afterwards again against ago all almost alone along already also although always am among
 amongst an and another any anybody anyone anything anywhere are aren't around as at away be became because become
 becomes been before beforehand behind being below beside besides between beyond both but by can can't cannot could
@@ -33,7 +34,8 @@ when whence whenever where whereas whereby wherein wherever whether which while 
 will with within without won't would wouldn't yes yet you you'd you'll you're you've your yours yourself yourselves
 ye hath doth art shalt wilt dost hast
 chapter book part canto act scene volume
-""".split())
+""".split()
+)
 
 
 def words_of(text):
@@ -51,7 +53,7 @@ def ngram_hashes(words):
         if i:
             count += content[i + NGRAM - 1] - content[i - 1]
         if count >= MIN_CONTENT_WORDS:
-            yield i, hash(tuple(words[i:i + NGRAM]))
+            yield i, hash(tuple(words[i : i + NGRAM]))
 
 
 def same_author(a, b):
@@ -74,8 +76,9 @@ class QuotationDetector(Detector):
     version = "3"
 
     def detect(self, corpus):
-        works = sorted((w for w in corpus.works if w.passages and w.text_year is not None),
-                       key=lambda w: (w.text_year, w.id))
+        works = sorted(
+            (w for w in corpus.works if w.passages and w.text_year is not None), key=lambda w: (w.text_year, w.id)
+        )
         shared = self._shared_hashes(works)
         if not shared:
             return []
@@ -95,7 +98,7 @@ class QuotationDetector(Detector):
     def _shared_hashes(self, works):
         """Map each hash held by works of more than one author to the indexes of its holders, earliest first."""
         per_work = []
-        for index, work in enumerate(works):
+        for work in works:
             hashes = set()
             for passage in work.passages:
                 hashes.update(h for _, h in ngram_hashes(words_of(passage.text)))
@@ -138,8 +141,13 @@ class QuotationDetector(Detector):
         for passage_index, word_index, h in hits:
             target_passage, target_word = first[h]
             last = spans[-1] if spans else None
-            if (last and last[0] == passage_index and last[2] + 1 == word_index
-                    and last[3] == target_passage and last[5] + 1 == target_word):
+            if (
+                last
+                and last[0] == passage_index
+                and last[2] + 1 == word_index
+                and last[3] == target_passage
+                and last[5] + 1 == target_word
+            ):
                 last[2] = word_index
                 last[5] = target_word
             else:
@@ -154,17 +162,23 @@ class QuotationDetector(Detector):
     def _candidate(self, source, target, spans):
         evidence = []
         for source_passage, s0, s1, target_passage, t0, t1 in spans:
-            evidence.append(Evidence(
-                source.passages[source_passage].id, target.passages[target_passage].id,
-                self._quote(source.passages[source_passage].text, s0, s1),
-                self._quote(target.passages[target_passage].text, t0, t1),
-            ))
+            evidence.append(
+                Evidence(
+                    source.passages[source_passage].id,
+                    target.passages[target_passage].id,
+                    self._quote(source.passages[source_passage].text, s0, s1),
+                    self._quote(target.passages[target_passage].text, t0, t1),
+                )
+            )
         longest = spans[0][2] - spans[0][1] + NGRAM
         source_passage, s0, s1 = spans[0][:3]
-        shown = " ".join(words_of(source.passages[source_passage].text)[s0:s1 + NGRAM])
+        shown = " ".join(words_of(source.passages[source_passage].text)[s0 : s1 + NGRAM])
         return Candidate(
-            source.id, target.id, "quotation", span_score(longest),
-            f"{len(spans)} shared word sequence(s); the longest is {longest} words: \"{shown}\"",
+            source.id,
+            target.id,
+            "quotation",
+            span_score(longest),
+            f'{len(spans)} shared word sequence(s); the longest is {longest} words: "{shown}"',
             evidence,
         )
 

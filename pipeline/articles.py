@@ -80,8 +80,7 @@ def read_article(location: str) -> tuple[str, str]:
 
 def build_prompt(text, works) -> str:
     listing = "\n".join(
-        f"- {w['title']} | {w['author']} | {w['year'] if w['year'] is not None else 'year unknown'}"
-        for w in works
+        f"- {w['title']} | {w['author']} | {w['year'] if w['year'] is not None else 'year unknown'}" for w in works
     )
     return PROMPT.format(types=", ".join(LINK_TYPES), works=listing, article=text)
 
@@ -140,8 +139,15 @@ def add_article(store, args):
         link_id = store.conn.execute(
             "INSERT INTO links (source_id, target_id, type, detector, detector_version, score, rationale,"
             " evidence_key, article_id) VALUES (?, ?, ?, 'article', '1', ?, ?, ?, ?)",
-            (source_id, target_id, link_type, ARTICLE_SCORE, str(claim.get("rationale", "")),
-             evidence_key(store, source_id, target_id, link_type, evidence), article_id),
+            (
+                source_id,
+                target_id,
+                link_type,
+                ARTICLE_SCORE,
+                str(claim.get("rationale", "")),
+                evidence_key(store, source_id, target_id, link_type, evidence),
+                article_id,
+            ),
         ).lastrowid
         store.conn.execute(
             "INSERT INTO evidence (link_id, source_quote, target_quote) VALUES (?, ?, NULL)",
@@ -172,8 +178,10 @@ def add_article(store, args):
 
     if unknown:
         print("add-article: not in the corpus, skipped: " + "; ".join(sorted(set(unknown))), file=sys.stderr)
-    print(f"added {added} links and {terms} signature terms from {name}"
-          + (f" ({skipped} claims skipped: unknown type or impossible direction)" if skipped else ""))
+    print(
+        f"added {added} links and {terms} signature terms from {name}"
+        + (f" ({skipped} claims skipped: unknown type or impossible direction)" if skipped else "")
+    )
     return 0
 
 

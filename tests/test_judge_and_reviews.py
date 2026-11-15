@@ -86,7 +86,7 @@ def test_owner_accepted_link_outranks_every_unreviewed_link(seeded):
 
     accepted = graph.one("The Waste Land", "Hamlet", "quotation")
     assert accepted["status"] == "accepted" and accepted["reviewed"] is True
-    others = [l for l in graph.links if not l["reviewed"]]
+    others = [link for link in graph.links if not link["reviewed"]]
     assert others
     assert all(accepted["confidence"] > other["confidence"] for other in others)
 

@@ -23,7 +23,7 @@ class SignatureDetector(Detector):
                 current = by_target[term.work_id].get(key, 0.0)
                 by_target[term.work_id][key] = max(current, term.weight)
         keys = sorted({key for terms in by_target.values() for key in terms}, key=lambda k: (-len(k), k))
-        pattern = re.compile(r"(?<!\w)(?:%s)(?!\w)" % "|".join(re.escape(k) for k in keys), re.IGNORECASE)
+        pattern = re.compile(r"(?<!\w)(?:" + "|".join(re.escape(k) for k in keys) + r")(?!\w)", re.IGNORECASE)
 
         works = sorted(corpus.works, key=lambda w: w.id)
         first_use = {work.id: self._first_uses(work, pattern) for work in works if work.passages}
@@ -36,9 +36,13 @@ class SignatureDetector(Detector):
                 continue
             terms = by_target[target_id]
             for source in works:
-                if (source.id == target_id or source.year is None or source.year < target.year
-                        or source.id not in first_use
-                        or source.author.strip().lower() == target.author.strip().lower()):
+                if (
+                    source.id == target_id
+                    or source.year is None
+                    or source.year < target.year
+                    or source.id not in first_use
+                    or source.author.strip().lower() == target.author.strip().lower()
+                ):
                     continue
                 found = [t for t in sorted(terms) if t in first_use[source.id]]
                 if found:
@@ -67,6 +71,10 @@ class SignatureDetector(Detector):
             evidence.append(item)
             miss *= 1 - SINGLE_TERM_FACTOR * max(0.0, min(1.0, weights[term]))
         return Candidate(
-            source.id, target.id, "shared-vocabulary", min(MAX_SCORE, 1 - miss),
-            f"Uses {', '.join(found)}, known as signature of {target.title}", evidence,
+            source.id,
+            target.id,
+            "shared-vocabulary",
+            min(MAX_SCORE, 1 - miss),
+            f"Uses {', '.join(found)}, known as signature of {target.title}",
+            evidence,
         )

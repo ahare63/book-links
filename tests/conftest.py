@@ -99,16 +99,18 @@ class Graph:
         return found[0]
 
     def touching(self, title):
-        return [
-            link
-            for link in self.links
-            if title in (self.title_of(link["source"]), self.title_of(link["target"]))
-        ]
+        return [link for link in self.links if title in (self.title_of(link["source"]), self.title_of(link["target"]))]
 
     def describe(self):
         return [
-            (self.title_of(l["source"]), self.title_of(l["target"]), l["type"], l["status"], round(l["confidence"], 2))
-            for l in self.links
+            (
+                self.title_of(link["source"]),
+                self.title_of(link["target"]),
+                link["type"],
+                link["status"],
+                round(link["confidence"], 2),
+            )
+            for link in self.links
         ]
 
 

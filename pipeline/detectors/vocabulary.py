@@ -25,7 +25,7 @@ PRIOR_POOL = 1000
 # Across all pairs tested, about this many pairs should pass by chance alone.
 FALSE_PAIRS = 0.5
 
-_WORD = re.compile(r"[^\W\d_]{%d,}" % MIN_LENGTH)
+_WORD = re.compile(rf"[^\W\d_]{{{MIN_LENGTH},}}")
 
 
 def poisson_tail(count, expected):
@@ -43,8 +43,9 @@ class VocabularyDetector(Detector):
     version = "3"
 
     def detect(self, corpus):
-        works = sorted((w for w in corpus.works if w.passages and w.text_year is not None),
-                       key=lambda w: (w.text_year, w.id))
+        works = sorted(
+            (w for w in corpus.works if w.passages and w.text_year is not None), key=lambda w: (w.text_year, w.id)
+        )
         if len(works) < 2:
             return []
         zipf = {}
@@ -80,10 +81,18 @@ class VocabularyDetector(Detector):
             if chance > max_chance:
                 continue
             words.sort(key=lambda w: (zipf[w], w))
-            candidates.append(self._candidate(
-                source, target, words[:WORDS_PER_PAIR], len(words), expected, chance,
-                first_use[source_index], first_use[target_index],
-            ))
+            candidates.append(
+                self._candidate(
+                    source,
+                    target,
+                    words[:WORDS_PER_PAIR],
+                    len(words),
+                    expected,
+                    chance,
+                    first_use[source_index],
+                    first_use[target_index],
+                )
+            )
         return candidates
 
     @staticmethod
@@ -111,15 +120,23 @@ class VocabularyDetector(Detector):
         for word in words:
             sp, ss, se = source_use[word]
             tp, ts, te = target_use[word]
-            evidence.append(Evidence(
-                source.passages[sp].id, target.passages[tp].id,
-                snippet(source.passages[sp].text, ss, se), snippet(target.passages[tp].text, ts, te),
-            ))
+            evidence.append(
+                Evidence(
+                    source.passages[sp].id,
+                    target.passages[tp].id,
+                    snippet(source.passages[sp].text, ss, se),
+                    snippet(target.passages[tp].text, ts, te),
+                )
+            )
         score = min(MAX_SCORE, 0.1 * -math.log10(max(chance, 1e-16)))
         if source.translated or target.translated:
             score /= 2
         return Candidate(
-            source.id, target.id, "shared-vocabulary", score,
+            source.id,
+            target.id,
+            "shared-vocabulary",
+            score,
             f"Shares {total} rare words that at most one other work here uses (chance predicts about {expected:.1f}): "
-            f"{', '.join(words)}", evidence,
+            f"{', '.join(words)}",
+            evidence,
         )

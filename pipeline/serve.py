@@ -4,7 +4,7 @@ import json
 import re
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import unquote, urlparse, parse_qs
+from urllib.parse import parse_qs, unquote, urlparse
 
 from pipeline.detectors.base import LINK_TYPES
 from pipeline.export import build_graph
@@ -14,9 +14,15 @@ from pipeline.store import Store
 DIST = Path(__file__).resolve().parent.parent / "viewer" / "dist"
 
 CONTENT_TYPES = {
-    ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8",
-    ".css": "text/css; charset=utf-8", ".json": "application/json", ".svg": "image/svg+xml",
-    ".png": "image/png", ".ico": "image/x-icon", ".woff2": "font/woff2", ".map": "application/json",
+    ".html": "text/html; charset=utf-8",
+    ".js": "text/javascript; charset=utf-8",
+    ".css": "text/css; charset=utf-8",
+    ".json": "application/json",
+    ".svg": "image/svg+xml",
+    ".png": "image/png",
+    ".ico": "image/x-icon",
+    ".woff2": "font/woff2",
+    ".map": "application/json",
 }
 
 
@@ -105,7 +111,8 @@ def make_handler(data_dir):
                 link_id, verdict = body["link_id"], body["verdict"]
                 corrected, note = body.get("type"), body.get("note")
                 valid = (
-                    isinstance(link_id, int) and not isinstance(link_id, bool)
+                    isinstance(link_id, int)
+                    and not isinstance(link_id, bool)
                     and verdict in ("accept", "reject")
                     and (corrected is None or corrected in LINK_TYPES)
                     and (note is None or isinstance(note, str))

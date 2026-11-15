@@ -17,8 +17,15 @@ def record_review(store, link_id, verdict, corrected_type=None, note=None) -> bo
         " ON CONFLICT (source_id, target_id, type) DO UPDATE SET"
         " verdict = excluded.verdict, corrected_type = excluded.corrected_type,"
         " note = excluded.note, created = excluded.created",
-        (link["source_id"], link["target_id"], link["type"], verdict, corrected_type, note,
-         datetime.now(timezone.utc).isoformat(timespec="seconds")),
+        (
+            link["source_id"],
+            link["target_id"],
+            link["type"],
+            verdict,
+            corrected_type,
+            note,
+            datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        ),
     )
     store.conn.commit()
     return True

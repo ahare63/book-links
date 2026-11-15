@@ -93,6 +93,7 @@ Confidence: a candidate nobody has judged scores at most 0.5; one the model acce
 
 ```sh
 .venv/bin/python -m pytest -q                              # tests, on short excerpts in tests/fixtures
+.venv/bin/ruff check . && .venv/bin/ruff format --check .   # lint and formatting
 .venv/bin/book-links evaluate gold/known_links.yaml        # recall against known links
 ```
 
