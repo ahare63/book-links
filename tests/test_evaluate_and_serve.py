@@ -228,3 +228,63 @@ def test_static_files_outside_the_viewer_are_not_served(server):
     }
 
     assert statuses == {404}
+
+
+KEATS_POEMS = """\
+- parent: Poems Published in 1820
+  title: Ode to a Nightingale
+  year: 1819
+  first_line: "My heart aches, and a drowsy numbness pains"
+  last_line: "Fled is that music:--Do I wake or sleep?"
+- parent: Poems Published in 1820
+  title: To Autumn
+  year: 1819
+  first_line: "Season of mists and mellow fruitfulness"
+  last_line: "And gathering swallows twitter in the skies."
+"""
+
+GOLD_TO_AUTUMN = """\
+- source: stub-tender
+  source_title: Tender Is the Night
+  target: 23684
+  target_title: Poems Published in 1820
+  target_part: To Autumn
+  type: allusion
+  evidence: none; the detected link is to a different poem in the same collection
+  basis: test
+  certainty: high
+"""
+
+
+def test_a_gold_link_to_a_held_part_is_not_satisfied_by_a_link_to_another_part(seeded, capsys):
+    subworks = seeded.tmp / "subworks.yaml"
+    subworks.write_text(KEATS_POEMS, encoding="utf-8")
+    seeded.run("add-subworks", subworks)
+    gold = seeded.tmp / "gold.yaml"
+    gold.write_text(GOLD_TO_AUTUMN, encoding="utf-8")
+    seeded.run("detect")
+    seeded.export().one("Tender Is the Night", "Ode to a Nightingale", "title-source")
+    capsys.readouterr()
+
+    seeded.run("evaluate", gold, "--json")
+    report = json.loads(capsys.readouterr().out)
+
+    assert report["found"] == 0
+    assert [m["source_title"] for m in report["missing"]] == ["Tender Is the Night"]
+
+
+def test_a_gold_part_is_looked_up_inside_its_own_collection_first(seeded, capsys):
+    seeded.add_stub("Ode to a Nightingale", "A Later Novelist", 1990)  # same title, added before the poem
+    subworks = seeded.tmp / "subworks.yaml"
+    subworks.write_text(KEATS_POEMS, encoding="utf-8")
+    seeded.run("add-subworks", subworks)
+    gold = seeded.tmp / "gold.yaml"
+    gold.write_text(
+        GOLD_TO_AUTUMN.replace("target_part: To Autumn", "target_part: Ode to a Nightingale"), encoding="utf-8"
+    )
+    seeded.run("detect")
+    capsys.readouterr()
+
+    seeded.run("evaluate", gold, "--json")
+
+    assert json.loads(capsys.readouterr().out)["found"] == 1

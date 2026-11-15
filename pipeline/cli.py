@@ -7,10 +7,10 @@ sub-parser whose ``func`` default takes ``(store, args)`` and returns an exit co
 import argparse
 import sys
 
-from pipeline import articles, evaluate, export, ingest, judge, metadata, reviews, run, serve, subworks
+from pipeline import articles, evaluate, export, ingest, judge, metadata, reviews, run, serve, site, subworks, themes
 from pipeline.store import Store
 
-MODULES = [ingest, subworks, metadata, run, judge, export, reviews, articles, evaluate, serve]
+MODULES = [ingest, subworks, metadata, themes, run, judge, export, reviews, articles, evaluate, serve, site]
 
 
 def build_parser() -> argparse.ArgumentParser:

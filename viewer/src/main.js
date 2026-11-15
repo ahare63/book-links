@@ -302,8 +302,8 @@ function renderLink(link) {
   const evidence = link.evidence
     .map(
       (item) => `<div class="evidence">
-        <figure><figcaption>${escapeHtml(source.title)}</figcaption><blockquote>${item.source_quote ? escapeHtml(item.source_quote) : '<span class="none">no passage</span>'}</blockquote></figure>
-        <figure><figcaption>${escapeHtml(target.title)}</figcaption><blockquote>${item.target_quote ? escapeHtml(item.target_quote) : '<span class="none">no passage</span>'}</blockquote></figure>
+        <figure><figcaption>${escapeHtml(source.title)}</figcaption><blockquote>${quoteHtml(item.source_quote, source)}</blockquote></figure>
+        <figure><figcaption>${escapeHtml(target.title)}</figcaption><blockquote>${quoteHtml(item.target_quote, target)}</blockquote></figure>
       </div>`,
     )
     .join("");
@@ -326,7 +326,7 @@ function renderLink(link) {
     <h3>${escapeHtml(source.title)} → ${escapeHtml(target.title)}</h3>
     <p class="direction">${describeWork(source)} draws on ${describeWork(target)}</p>
     <p><span class="chip" style="background:${colour}">${escapeHtml(link.type)}</span>
-      <span class="status ${link.status}">${link.status}${link.reviewed ? " by you" : link.status === "proposed" ? "" : " by the judge"}</span></p>
+      <span class="status ${link.status}">${link.status}${link.reviewed ? (state.data.reviewable ? " by you" : " by the owner") : link.status === "proposed" ? "" : " by the judge"}</span></p>
     <div class="bar"><span style="width:${Math.round(link.confidence * 100)}%"></span></div>
     <p class="meta">Confidence ${link.confidence.toFixed(2)} · detector ${escapeHtml(link.detector)} v${escapeHtml(link.detector_version)}</p>
     <p>${escapeHtml(link.rationale)}</p>
@@ -407,8 +407,10 @@ function renderControls() {
   const works = state.data.works.length;
   const accepted = state.data.links.filter((link) => link.status === "accepted").length;
   const reviewed = state.data.links.filter((link) => link.reviewed).length;
-  $("#summary").textContent = `${works} works, ${state.data.links.length} links (${accepted} accepted, ${reviewed} reviewed by you). Arrows point from a work to the earlier work it draws on.`;
+  const counts = state.data.reviewable ? `${accepted} accepted, ${reviewed} reviewed by you` : `${accepted} accepted`;
+  $("#summary").textContent = `${works} works, ${state.data.links.length} links (${counts}). Arrows point from a work to the earlier work it draws on.`;
   $("#lens-section").hidden = !state.data.reviewable;
+  $("#show-rejected").closest("label").hidden = !state.data.reviewable;
 }
 
 $("#types").addEventListener("change", (event) => {
@@ -487,3 +489,10 @@ async function load(first) {
 }
 
 load(true);
+
+// The public site withholds quotes from texts that may be in copyright in the US (see pipeline/site.py).
+function quoteHtml(quote, work) {
+  if (quote) return escapeHtml(quote);
+  const withheld = !state.data.reviewable && work.kind !== "stub" && work.source !== "gutenberg-us";
+  return `<span class="none">${withheld ? "not quoted on this site" : "no passage"}</span>`;
+}

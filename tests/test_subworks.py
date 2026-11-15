@@ -85,3 +85,143 @@ def test_a_review_follows_its_link_onto_a_newly_declared_poem(seeded):
     assert moved["reviewed"] is True
     assert moved["status"] == "accepted"
     assert moved["note"] == "Keats"
+
+
+def test_a_later_text_naming_a_poem_links_to_the_poem(seeded):
+    declare(seeded)
+    seeded.add_text(
+        "She read the Ode to a Nightingale aloud twice, and then put the book down by the window.",
+        "A Reader",
+        "Later Novelist",
+        1925,
+    )
+    seeded.run("detect")
+
+    graph = seeded.export()
+
+    link = graph.one("A Reader", "Ode to a Nightingale", "mention")
+    assert "ode to a nightingale" in quotes(link, "source")
+    assert graph.between("A Reader", "Poems Published in 1820") == []
+
+
+def test_a_poem_is_never_said_to_name_its_own_collection(seeded):
+    # A different author and a year no earlier than the collection's, so only the parent rule stops it.
+    path = seeded.tmp / "subworks.yaml"
+    path.write_text(SUBWORKS.replace("year: 1819", "year: 1820\n  author: Another Poet"), encoding="utf-8")
+    seeded.run("add-subworks", path)
+    seeded.run("detect")
+
+    graph = seeded.export()
+
+    assert graph.between("Poems Published in 1820", "Ode to a Nightingale") == []
+    assert graph.between("Ode to a Nightingale", "Poems Published in 1820") == []
+
+
+SCRIPTURE = """\
+The words of the prophet.
+
+Daniel was cast into the den of lions, and the lions did him no harm.
+
+Daniel prayed three times a day, and the king feared the God of Daniel.
+
+The end of the prophet.
+"""
+
+DANIEL = """\
+- parent: Scripture
+  title: Daniel
+  year: -165
+  first_line: "Daniel was cast into the den"
+  last_line: "the king feared the God of Daniel"
+"""
+
+
+def add_scripture(corpus):
+    corpus.add_text(SCRIPTURE, "Scripture", "Various", 110, translation_year=1611)
+    path = corpus.tmp / "daniel.yaml"
+    path.write_text(DANIEL, encoding="utf-8")
+    corpus.run("add-subworks", path)
+
+
+def test_a_one_word_book_title_used_as_a_name_is_not_a_mention(corpus):
+    add_scripture(corpus)
+    corpus.add_text("Daniel came home late and put the kettle on.", "Kettle", "Some Novelist", 1900)
+    corpus.run("detect")
+
+    assert corpus.export().between("Kettle", "Daniel", "mention") == []
+
+
+def test_a_one_word_book_title_after_book_of_is_a_mention(corpus):
+    add_scripture(corpus)
+    corpus.add_text("He read the Book of Daniel by the fire.", "Fireside", "Some Novelist", 1900)
+    corpus.run("detect")
+
+    link = corpus.export().one("Fireside", "Daniel", "mention")
+    assert "book of daniel" in quotes(link, "source")
+
+
+def test_a_one_word_book_title_in_italics_is_a_mention(corpus):
+    add_scripture(corpus)
+    corpus.add_text("He read _Daniel_ by the fire.", "Fireside", "Some Novelist", 1900)
+    corpus.run("detect")
+
+    corpus.export().one("Fireside", "Daniel", "mention")
+
+
+PLAYS = """The plays.
+
+KING RICHARD. Now is the winter of our discontent made glorious summer by this sun of York.
+
+The last words of the history.
+
+PROSPERO. Our revels now are ended. These our actors were all spirits and are melted into air.
+
+The last words of the romance.
+"""
+
+PLAY_DECLARATIONS = """- parent: The Plays
+  title: Richard III
+  year: 1593
+  first_line: "Now is the winter of our discontent"
+  last_line: "The last words of the history."
+- parent: The Plays
+  title: The Tempest
+  year: 1611
+  first_line: "Our revels now are ended"
+  last_line: "The last words of the romance."
+"""
+
+
+def add_plays(corpus):
+    corpus.add_text(PLAYS, "The Plays", "William Shakespeare", 1623)
+    path = corpus.tmp / "plays.yaml"
+    path.write_text(PLAY_DECLARATIONS, encoding="utf-8")
+    corpus.run("add-subworks", path)
+
+
+def test_a_play_named_for_a_king_is_not_mentioned_by_naming_the_king(corpus):
+    add_plays(corpus)
+    corpus.add_text("In the reign of Richard III the abbey was rebuilt.", "Abbeys", "Some Historian", 1900)
+    corpus.run("detect")
+
+    assert corpus.export().touching("Abbeys") == []
+
+
+def test_a_play_named_for_a_king_is_mentioned_alongside_its_author(corpus):
+    add_plays(corpus)
+    corpus.add_text("We saw Shakespeare's Richard III at the Lyceum.", "Theatre Notes", "Some Critic", 1900)
+    corpus.run("detect")
+
+    corpus.export().one("Theatre Notes", "Richard III", "mention")
+
+
+def test_a_storm_is_not_a_mention_of_the_tempest_and_the_tempest_takes_no_title_from_a_storm(corpus):
+    add_plays(corpus)
+    corpus.add_text("After the Tempest the ship lay still.", "Voyage", "Some Sailor", 1900)
+    corpus.add_text("And there arose a great tempest in the sea.", "Old Book", "Various", 1500)
+    corpus.run("detect")
+
+    graph = corpus.export()
+
+    assert graph.touching("Voyage") == []
+    assert graph.touching("Old Book") == []

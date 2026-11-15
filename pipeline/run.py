@@ -5,7 +5,7 @@ import json
 from collections import defaultdict
 
 from pipeline.detectors import DETECTORS
-from pipeline.detectors.base import QUOTE_LIMIT, Corpus, Passage, SignatureTerm, Work
+from pipeline.detectors.base import QUOTE_LIMIT, Corpus, Passage, SignatureTerm, ThemeLabel, Work
 
 EVIDENCE_PER_LINK = 5
 
@@ -14,8 +14,9 @@ def load_corpus(store) -> Corpus:
     works = []
     for row in store.works():
         if row["kind"] == "subwork":
-            continue
-        passages = tuple(Passage(p["id"], p["position"], p["text"]) for p in store.passages(row["id"]))
+            passages = ()
+        else:
+            passages = tuple(Passage(p["id"], p["position"], p["text"]) for p in store.passages(row["id"]))
         text_year = row["text_year"] if row["text_year"] is not None else row["year"]
         works.append(
             Work(
@@ -27,13 +28,21 @@ def load_corpus(store) -> Corpus:
                 bool(row["translated"]),
                 text_year,
                 passages,
+                row["parent_id"],
+                (row["start_pos"], row["end_pos"]) if row["kind"] == "subwork" else None,
             )
         )
     terms = tuple(
         SignatureTerm(row["term"], row["work_id"], row["weight"])
         for row in store.conn.execute("SELECT term, work_id, weight FROM signature_terms")
     )
-    return Corpus(tuple(works), terms)
+    themes = tuple(
+        ThemeLabel(row["work_id"], row["theme"], row["note"])
+        for row in store.conn.execute(
+            "SELECT work_id, coalesce(canonical, theme) AS theme, note FROM themes ORDER BY id"
+        )
+    )
+    return Corpus(tuple(works), terms, themes)
 
 
 def evidence_key(store, source_id, target_id, link_type, evidence) -> str:
