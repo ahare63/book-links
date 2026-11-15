@@ -1,4 +1,8 @@
-"""Clusters of distinctive words that two works share and few other works use."""
+"""Clusters of distinctive words that two works share and few other works use.
+
+Two long books share a few rare words by chance, so a pair is proposed only when it shares
+far more than chance predicts from the size of each book's rare vocabulary.
+"""
 
 import math
 import re
@@ -14,35 +18,51 @@ MAX_ZIPF = 3.0
 MIN_SHARED = 2
 WORDS_PER_PAIR = 5
 MAX_SCORE = 0.5
-LENGTH_SCALE = 5000
+# Chance overlap is estimated from the corpus itself; this many imaginary pairable words are
+# added so that a corpus of a few short texts does not look saturated.
+PRIOR_POOL = 1000
+MAX_CHANCE = 1e-3  # propose only if chance would give this much overlap less often than this
 
 _WORD = re.compile(r"[^\W\d_]{%d,}" % MIN_LENGTH)
 
 
+def poisson_tail(count, expected):
+    """The probability of seeing ``count`` or more when chance predicts ``expected``."""
+    term = math.exp(-expected)
+    below = 0.0
+    for k in range(count):
+        below += term
+        term *= expected / (k + 1)
+    return max(0.0, 1.0 - below)
+
+
 class VocabularyDetector(Detector):
     name = "vocabulary"
-    version = "1"
+    version = "2"
 
     def detect(self, corpus):
-        works = sorted((w for w in corpus.works if w.passages and w.year is not None),
-                       key=lambda w: (w.year, w.id))
+        works = sorted((w for w in corpus.works if w.passages and w.text_year is not None),
+                       key=lambda w: (w.text_year, w.id))
         if len(works) < 2:
             return []
         zipf = {}
         first_use = []
-        lengths = []
         users = defaultdict(list)
         for index, work in enumerate(works):
-            found, length = self._rare_words(work, zipf)
+            found = self._rare_words(work, zipf)
             first_use.append(found)
-            lengths.append(length)
             for word in found:
                 users[word].append(index)
 
         limit = max(2, int(0.05 * len(works)))
         shared = defaultdict(list)
+        pairable = [0] * len(works)  # per work: its distinctive words that some other work also uses
+        pool = PRIOR_POOL
         for word, holders in users.items():
             if 2 <= len(holders) <= limit:
+                pool += 1
+                for index in holders:
+                    pairable[index] += 1
                 for a, b in combinations(holders, 2):
                     shared[(a, b)].append(word)
 
@@ -51,11 +71,15 @@ class VocabularyDetector(Detector):
             source, target = works[source_index], works[target_index]
             if len(words) < MIN_SHARED or self._same_author(source, target):
                 continue
+            # If shared words fell on pairs at random, this pair would get about this many.
+            expected = pairable[source_index] * pairable[target_index] / (2 * pool)
+            chance = poisson_tail(len(words), expected)
+            if chance > MAX_CHANCE:
+                continue
             words.sort(key=lambda w: (zipf[w], w))
             candidates.append(self._candidate(
-                source, target, words[:WORDS_PER_PAIR], len(words), zipf,
+                source, target, words[:WORDS_PER_PAIR], len(words), expected, chance,
                 first_use[source_index], first_use[target_index],
-                max(lengths[source_index], lengths[target_index]),
             ))
         return candidates
 
@@ -65,11 +89,9 @@ class VocabularyDetector(Detector):
 
     @staticmethod
     def _rare_words(work, zipf):
-        """Distinctive words the work uses in lower case, each with where it first occurs, and the work's length."""
+        """Distinctive words the work uses in lower case, each with where it first occurs."""
         first = {}
-        length = 0
         for passage_index, passage in enumerate(work.passages):
-            length += len(passage.text.split())
             for match in _WORD.finditer(passage.text):
                 word = match.group()
                 if word in first or not word.islower():
@@ -78,10 +100,10 @@ class VocabularyDetector(Detector):
                     zipf[word] = zipf_frequency(word, "en")
                 if 0 < zipf[word] < MAX_ZIPF:
                     first[word] = (passage_index, match.start(), match.end())
-        return first, length
+        return first
 
     @staticmethod
-    def _candidate(source, target, words, total, zipf, source_use, target_use, length):
+    def _candidate(source, target, words, total, expected, chance, source_use, target_use):
         evidence = []
         for word in words:
             sp, ss, se = source_use[word]
@@ -90,12 +112,11 @@ class VocabularyDetector(Detector):
                 source.passages[sp].id, target.passages[tp].id,
                 snippet(source.passages[sp].text, ss, se), snippet(target.passages[tp].text, ts, te),
             ))
-        strength = sum(0.5 + 0.5 * (MAX_ZIPF - zipf[w]) / MAX_ZIPF for w in words)
-        damping = 1 / (1 + math.log10(max(1.0, length / LENGTH_SCALE)))
-        score = MAX_SCORE * (1 - math.exp(-1.24 * strength)) * damping
+        score = min(MAX_SCORE, 0.1 * -math.log10(max(chance, 1e-16)))
         if source.translated or target.translated:
             score /= 2
         return Candidate(
             source.id, target.id, "shared-vocabulary", score,
-            f"Shares {total} distinctive words: {', '.join(words)}", evidence,
+            f"Shares {total} rare words that at most one other work here uses (chance predicts about {expected:.1f}): "
+            f"{', '.join(words)}", evidence,
         )

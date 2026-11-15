@@ -16,7 +16,8 @@ CREATE TABLE IF NOT EXISTS works (
     parent_id INTEGER REFERENCES works(id),
     start_pos INTEGER,             -- subwork only: character range in the parent's stripped text
     end_pos INTEGER,
-    translated INTEGER NOT NULL DEFAULT 0
+    translated INTEGER NOT NULL DEFAULT 0,
+    text_year INTEGER              -- when the held text was written, if later than `year` (a translation)
 );
 CREATE TABLE IF NOT EXISTS passages (
     id INTEGER PRIMARY KEY,
@@ -118,15 +119,18 @@ class Store:
         return row
 
     def add_work(self, title, author, year, source, kind, source_ref=None, parent_id=None,
-                 start_pos=None, end_pos=None, translated=False):
-        """Insert a work and return its id. A work with the same title and author is reused."""
+                 start_pos=None, end_pos=None, text_year=None):
+        """Insert a work and return its id. A work with the same title and author is reused.
+
+        ``text_year`` is the year a translation was made; giving it marks the work as translated.
+        """
         existing = self.find_work(title, author)
         if existing is not None:
             return existing["id"]
         cursor = self.conn.execute(
-            "INSERT INTO works (title, author, year, source, source_ref, kind, parent_id, start_pos, end_pos, translated)"
-            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (title, author, year, source, source_ref, kind, parent_id, start_pos, end_pos, int(translated)),
+            "INSERT INTO works (title, author, year, source, source_ref, kind, parent_id, start_pos, end_pos, translated, text_year)"
+            " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (title, author, year, source, source_ref, kind, parent_id, start_pos, end_pos, int(text_year is not None), text_year),
         )
         return cursor.lastrowid
 

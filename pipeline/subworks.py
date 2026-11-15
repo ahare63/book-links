@@ -38,7 +38,7 @@ def add_subworks(store, args):
             parent_id=parent["id"],
             start_pos=start,
             end_pos=end,
-            translated=bool(parent["translated"]),
+            text_year=parent["text_year"],
         )
 
 

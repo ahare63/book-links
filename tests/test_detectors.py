@@ -119,3 +119,50 @@ def test_a_one_word_title_match_is_trusted_less_than_a_whole_phrase(seeded):
     word = graph.one("Hemlock", "Poems Published in 1820", "title-source")
     assert word["confidence"] < phrase["confidence"]
     assert phrase["status"] == "proposed" and word["status"] == "proposed"
+
+
+def test_a_translation_cannot_be_quoted_before_it_was_made(corpus):
+    # The English words of an ancient work are its translator's. A 1611 text that shares a
+    # sentence with an 1871 translation did not take it from the ancient author, and the
+    # ancient author did not take it from 1611.
+    corpus.add_text(f"The dialogue opens.\n\n{PSALM}\n\nThe dialogue closes.", "Old Dialogue", "Ancient Sage", -400,
+                    translation_year=1871)
+    corpus.add_text(f"An old chronicle of the coast.\n\n{PSALM}\n\nSo the chronicle ends.", "Coast Chronicle", "Anon Monk", 1611)
+    corpus.run("detect")
+
+    graph = corpus.export()
+
+    assert graph.links == []
+
+
+def test_a_later_work_quoting_a_translation_links_to_the_translated_work(corpus):
+    corpus.add_text(f"The dialogue opens.\n\n{PSALM}\n\nThe dialogue closes.", "Old Dialogue", "Ancient Sage", -400,
+                    translation_year=1871)
+    corpus.add_text(f"The pilot muttered something as we came in.\n\n{PSALM}\n\nThen he spat.", "Coming In", "Second Borrower", 1900)
+    corpus.run("detect")
+
+    graph = corpus.export()
+
+    graph.one("Coming In", "Old Dialogue", "quotation")
+    assert graph.work("Old Dialogue")["translated"] is True
+
+
+def test_a_short_stock_phrase_is_not_a_quotation(corpus):
+    corpus.add_text("The garrison held for a week and then fell into the hands of the enemy at dawn.", "Siege", "War Writer", 1850)
+    corpus.add_text("Her letters, she feared, fell into the hands of the enemy she had made at court.", "Court", "Court Writer", 1900)
+    corpus.run("detect")
+
+    graph = corpus.export()
+
+    assert graph.links == []
+
+
+def test_matching_chapter_headings_are_not_a_quotation(corpus):
+    contents = "CHAPTER I\nCHAPTER II\nCHAPTER III\nCHAPTER IV\nCHAPTER V\nCHAPTER VI\nCHAPTER VII\nCHAPTER VIII"
+    corpus.add_text(f"{contents}\n\nThe harvest failed twice that decade.", "Barns", "Farm Writer", 1850)
+    corpus.add_text(f"{contents}\n\nThe regiment marched south in the rain.", "Drums", "War Writer", 1900)
+    corpus.run("detect")
+
+    graph = corpus.export()
+
+    assert graph.links == []

@@ -8,10 +8,12 @@ from itertools import groupby
 from pipeline.detectors.base import Candidate, Detector, Evidence, snippet
 
 NGRAM = 5
+MIN_SPAN = 7  # shorter shared runs are mostly stock phrases
 MIN_CONTENT_WORDS = 2
 SPANS_PER_PAIR = 5
 
 _WORD = re.compile(r"[^\W\d_]+(?:'[^\W\d_]+)*")
+_ROMAN = re.compile(r"m{0,3}(cm|cd|d?c{0,3})(xc|xl|l?x{0,3})(ix|iv|v?i{0,3})")
 
 STOP_WORDS = frozenset("""
 a about above across after afterwards again against ago all almost alone along already also although always am among
@@ -30,6 +32,7 @@ toward towards under unless until up upon us very was wasn't we we'd we'll we're
 when whence whenever where whereas whereby wherein wherever whether which while whither who whoever whole whom whose why
 will with within without won't would wouldn't yes yet you you'd you'll you're you've your yours yourself yourselves
 ye hath doth art shalt wilt dost hast
+chapter book part canto act scene volume
 """.split())
 
 
@@ -42,7 +45,7 @@ def ngram_hashes(words):
     n = len(words)
     if n < NGRAM:
         return
-    content = [w not in STOP_WORDS for w in words]
+    content = [w not in STOP_WORDS and not _ROMAN.fullmatch(w) for w in words]
     count = sum(content[:NGRAM])
     for i in range(n - NGRAM + 1):
         if i:
@@ -68,11 +71,11 @@ def span_score(words):
 
 class QuotationDetector(Detector):
     name = "quotation"
-    version = "1"
+    version = "2"
 
     def detect(self, corpus):
-        works = sorted((w for w in corpus.works if w.passages and w.year is not None),
-                       key=lambda w: (w.year, w.id))
+        works = sorted((w for w in corpus.works if w.passages and w.text_year is not None),
+                       key=lambda w: (w.text_year, w.id))
         shared = self._shared_hashes(works)
         if not shared:
             return []
@@ -84,6 +87,8 @@ class QuotationDetector(Detector):
                 by_target.setdefault(shared[h][0], []).append((passage_index, word_index, h))
             for target_index, hits in sorted(by_target.items()):
                 spans = self._spans(hits, first)
+                if spans[0][2] - spans[0][1] + NGRAM < MIN_SPAN:
+                    continue
                 candidates.append(self._candidate(works[source_index], works[target_index], spans))
         return candidates
 
@@ -143,7 +148,8 @@ class QuotationDetector(Detector):
         for span in spans:
             unique.setdefault((span[3], span[4]), span)
         ordered = sorted(unique.values(), key=lambda s: (-(s[2] - s[1]), s[0], s[1]))
-        return ordered[:SPANS_PER_PAIR]
+        long_enough = [s for s in ordered if s[2] - s[1] + NGRAM >= MIN_SPAN]
+        return (long_enough or ordered)[:SPANS_PER_PAIR]
 
     def _candidate(self, source, target, spans):
         evidence = []

@@ -36,15 +36,16 @@ class Corpus:
             assert code == 0, f"book-links {' '.join(str(a) for a in args)} exited {code}"
         return code
 
-    def add_file(self, path, title, author, year):
-        self.run("add-file", path, "--title", title, "--author", author, "--year", year)
+    def add_file(self, path, title, author, year, translation_year=None):
+        extra = [] if translation_year is None else ["--translation-year", translation_year]
+        self.run("add-file", path, "--title", title, "--author", author, f"--year={year}", *extra)
 
-    def add_text(self, text, title, author, year):
+    def add_text(self, text, title, author, year, translation_year=None):
         """Add a work whose text is written by the test."""
         self._n += 1
         path = self.tmp / f"text_{self._n}.txt"
         path.write_text(text, encoding="utf-8")
-        self.add_file(path, title, author, year)
+        self.add_file(path, title, author, year, translation_year)
 
     def add_stub(self, title, author, year):
         self.run("add-stub", "--title", title, "--author", author, "--year", year)

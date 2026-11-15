@@ -28,6 +28,7 @@ class Work:
     year: int | None
     kind: str
     translated: bool
+    text_year: int | None = None  # when the held text was written: the translation year, else ``year``
     passages: tuple = ()
 
 

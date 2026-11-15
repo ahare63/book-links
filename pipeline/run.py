@@ -16,8 +16,9 @@ def load_corpus(store) -> Corpus:
         if row["kind"] == "subwork":
             continue
         passages = tuple(Passage(p["id"], p["position"], p["text"]) for p in store.passages(row["id"]))
+        text_year = row["text_year"] if row["text_year"] is not None else row["year"]
         works.append(Work(row["id"], row["title"], row["author"], row["year"], row["kind"],
-                          bool(row["translated"]), passages))
+                          bool(row["translated"]), text_year, passages))
     terms = tuple(
         SignatureTerm(row["term"], row["work_id"], row["weight"])
         for row in store.conn.execute("SELECT term, work_id, weight FROM signature_terms")

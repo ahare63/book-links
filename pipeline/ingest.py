@@ -28,7 +28,8 @@ def register(commands):
     parser.add_argument("--title")
     parser.add_argument("--author")
     parser.add_argument("--year", type=int)
-    parser.add_argument("--translated", action="store_true")
+    parser.add_argument("--translation-year", type=int, metavar="YEAR",
+                        help="for a translation: the year the translation was made")
     parser.set_defaults(func=add_book)
 
     parser = commands.add_parser("add-url", help="add a work from a single file on gutenberg.net.au")
@@ -41,7 +42,8 @@ def _describe(parser, required_year):
     parser.add_argument("--title", required=True)
     parser.add_argument("--author", required=True)
     parser.add_argument("--year", type=int, required=required_year)
-    parser.add_argument("--translated", action="store_true")
+    parser.add_argument("--translation-year", type=int, metavar="YEAR",
+                        help="for a translation: the year the translation was made")
 
 
 def texts_dir(store):
@@ -67,7 +69,7 @@ def add_file(store, args):
         raw = Path(args.path).read_bytes()
     except OSError as error:
         return _fail(f"cannot read {args.path}: {error.strerror}")
-    _add_full(store, raw, args.title, args.author, args.year, "local-file", str(args.path), args.translated)
+    _add_full(store, raw, args.title, args.author, args.year, "local-file", str(args.path), args.translation_year)
 
 
 def add_stub(store, args):
@@ -84,7 +86,7 @@ def add_book(store, args):
     author = args.author or strip.header_field(text, "Author")
     if not title or not author:
         return _fail(f"ebook {args.id}: no Title or Author line in the header; pass --title and --author")
-    _add_full(store, raw, title, author, args.year, "gutenberg-us", args.id, args.translated)
+    _add_full(store, raw, title, author, args.year, "gutenberg-us", args.id, args.translation_year)
 
 
 def add_url(store, args):
@@ -92,7 +94,7 @@ def add_url(store, args):
     raw = _cached_download(store, name, args.url)
     if isinstance(raw, int):
         return raw
-    _add_full(store, raw, args.title, args.author, args.year, "gutenberg-au", args.url, args.translated)
+    _add_full(store, raw, args.title, args.author, args.year, "gutenberg-au", args.url, args.translation_year)
 
 
 def _cached_download(store, name, url):
@@ -108,12 +110,12 @@ def _cached_download(store, name, url):
     return raw
 
 
-def _add_full(store, raw, title, author, year, source, source_ref, translated):
+def _add_full(store, raw, title, author, year, source, source_ref, text_year):
     text = strip.normalise_newlines(strip.decode(raw))
     body, problem = strip.strip_licence(text)
     if problem:
         print(f"warning: {title}: {problem}; check the text by hand", file=sys.stderr)
-    work_id = store.add_work(title, author, year, source, "full", source_ref=source_ref, translated=translated)
+    work_id = store.add_work(title, author, year, source, "full", source_ref=source_ref, text_year=text_year)
     with open(texts_dir(store) / f"{work_id}.txt", "w", encoding="utf-8", newline="") as handle:
         handle.write(body)
     store.set_passages(work_id, strip.split_passages(body))

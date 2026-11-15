@@ -5,10 +5,11 @@ from collections import defaultdict
 
 from wordfreq import zipf_frequency
 
-from pipeline.detectors.base import Candidate, Detector, Evidence, dated, snippet
+from pipeline.detectors.base import Candidate, Detector, Evidence, snippet
 
 EVIDENCE_PER_CANDIDATE = 5
 ARTICLES = {"the", "a", "an"}
+SMALL_WORDS = ARTICLES | {"of", "and", "in", "as", "to", "is", "at", "on", "for", "or", "with", "from", "by"}
 TOO_COMMON = 5.0
 WORD = re.compile(r"[^\W_]+(?:['’][^\W_]+)*")
 
@@ -34,6 +35,14 @@ def phrase_for(title):
     return tuple(w[0] for w in found), tuple(w[1] for w in found)
 
 
+def without_articles(phrase):
+    """A phrase from ``phrase_for`` with every article removed, or None if nothing is left."""
+    kept = [(o, l) for o, l in zip(*phrase) if l not in ARTICLES]
+    if not kept:
+        return None
+    return tuple(o for o, _ in kept), tuple(l for _, l in kept)
+
+
 def one_word_weight(word):
     """How far a single-word title is trusted: 0 for everyday words, up to 1 for rare ones."""
     zipf = zipf_frequency(word, "en")
@@ -54,27 +63,42 @@ class PhraseIndex:
         for key, (original, lower) in entries:
             self.by_first[lower[0]].append((key, original, lower))
 
-    def matches(self, tokens, case_sensitive_single=False):
-        """Yield ``(key, token index)`` for every phrase found in ``tokens`` (from ``words``)."""
+    def matches(self, tokens, as_printed=False):
+        """Yield ``(key, first index, last index)`` for every phrase found in ``tokens`` (from ``words``).
+
+        With ``as_printed`` the text must capitalise the phrase the way a title is printed: a one-word
+        title exactly, and every word of a longer title that is capitalised and not a small word.
+        """
         lowers = [t[1] for t in tokens]
         for i, lower in enumerate(lowers):
             for key, original, phrase in self.by_first.get(lower, ()):
                 n = len(phrase)
                 if tuple(lowers[i:i + n]) != phrase:
                     continue
-                if n == 1 and case_sensitive_single and tokens[i][0].replace("’", "'") != original[0].replace("’", "'"):
+                if as_printed and not self._printed_alike(tokens[i:i + n], original, phrase):
                     continue
                 yield key, i, i + n - 1
+
+    @staticmethod
+    def _printed_alike(tokens, original, phrase):
+        if len(phrase) == 1:
+            return tokens[0][0].replace("’", "'") == original[0].replace("’", "'")
+        return all(
+            token[0][0].isupper()
+            for token, word, lower in zip(tokens, original, phrase)
+            if word[0].isupper() and lower not in SMALL_WORDS
+        )
 
 
 class TitleDetector(Detector):
     name = "title"
-    version = "1"
+    version = "2"
 
     def detect(self, corpus):
         titled = {}
         for work in corpus.works:
             phrase = phrase_for(work.title)
+            phrase = without_articles(phrase) if phrase else None
             if phrase is None or work.year is None:
                 continue
             if len(phrase[1]) == 1 and one_word_weight(phrase[1][0]) == 0.0:
@@ -84,16 +108,17 @@ class TitleDetector(Detector):
 
         candidates = []
         for text_work in corpus.works:
-            if not text_work.passages:
+            if not text_work.passages or text_work.text_year is None:
                 continue
             found = defaultdict(dict)
             for passage in text_work.passages:
-                tokens = words(passage.text)
+                # Articles are ignored on both sides, so "The Sound and the Fury" matches "sound and fury".
+                tokens = [t for t in words(passage.text) if t[1] not in ARTICLES]
                 for wid, first, last in index.matches(tokens):
                     if wid == text_work.id:
                         continue
                     work = titled[wid][0]
-                    if not dated(text_work, work):
+                    if work.year < text_work.text_year:
                         continue
                     quote = snippet(passage.text, tokens[first][2], tokens[last][3])
                     hit = found[wid].setdefault(passage.id, [0, passage.position, passage.id, quote])
