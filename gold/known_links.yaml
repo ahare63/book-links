@@ -66,8 +66,8 @@
   target: 8800
   target_title: The Divine Comedy
   type: quotation
-  evidence: "Italian epigraph from Inferno 27 (Guido da Montefeltro); 'I had not thought death had undone so many' echoes Inferno 3; dedication to Pound as 'il miglior fabbro' from Purgatorio 26"
-  basis: "Epigraph and Eliot's notes; standard critical commonplace"
+  evidence: "'I had not thought death had undone so many' translates Inferno 3; the dedication to Pound as 'il miglior fabbro' is from Purgatorio 26. (The epigraph is Petronius, not Dante.)"
+  basis: "Eliot's notes; checked against the corpus text"
   certainty: high
 - source: 1321
   source_title: The Waste Land
@@ -110,7 +110,7 @@
   target_title: King James Bible
   target_part: Genesis
   type: allusion
-  evidence: "Opening 'Call me Ishmael'; Ishmael is the outcast son of Abraham, and Ahab is a Biblical king's name"
+  evidence: "Opening 'Call me Ishmael'; Ishmael is the outcast son of Abraham (Ahab, from 1 Kings, is a separate echo)"
   basis: "First sentence of the novel; standard critical commonplace"
   certainty: high
 - source: 15
@@ -118,17 +118,17 @@
   target: 10
   target_title: King James Bible
   target_part: Job
-  type: allusion
-  evidence: "Leviathan: the whale is treated through Job's Leviathan; the Bible is cited in the cetology chapters"
-  basis: "Standard scholarship on Melville's Biblical sources"
-  certainty: medium
+  type: quotation
+  evidence: "Epilogue epigraph 'And I only am escaped alone to tell thee' (Job 1); Job is quoted on the leviathan and named ('Who but mighty Job!')"
+  basis: "Checked against the corpus text"
+  certainty: high
 - source: 84
   source_title: Frankenstein
   target: 20
   target_title: Paradise Lost
-  type: quotation
-  evidence: "Title-page epigraph from Paradise Lost: 'Did I request thee, Maker, from my clay / To mould me Man...'; the creature also reads Paradise Lost"
-  basis: "Epigraph; the creature's reading is explicit in the text"
+  type: mention
+  evidence: "The creature reads Paradise Lost and names it. The 1818 title-page epigraph ('Did I request thee, Maker') is not in this edition."
+  basis: "Checked against the corpus text (ebook 84)"
   certainty: high
 - source: 71865
   source_title: Mrs Dalloway
@@ -143,7 +143,7 @@
   source_title: Paradise Lost
   target: 228
   target_title: The Aeneid
-  type: mention
+  type: allusion
   evidence: "Book 9 proem compares the poem's subject with the wrath of Turnus and the fate of Aeneas; epic form and invocations follow Virgil"
   basis: "Milton's own statement in Book 9; standard critical commonplace"
   certainty: high
@@ -151,7 +151,7 @@
   source_title: Paradise Lost
   target: 2199
   target_title: The Iliad
-  type: mention
+  type: allusion
   evidence: "Book 9 proem names Achilles' wrath among the 'argument' of earlier epics that Milton claims to surpass"
   basis: "Milton's own statement in Book 9"
   certainty: high
@@ -188,7 +188,7 @@
   evidence: "Virgil appears as Dante's guide through Hell and Purgatory and speaks of Aeneas' descent"
   basis: "Plain on the face of the text"
   certainty: high
-- source: 1122
+- source: 1524
   source_title: Hamlet
   target: 35330
   target_title: The Spanish Tragedy
@@ -237,17 +237,17 @@
   target_title: Faust
   type: mention
   evidence: "The Paris Opera performs Faust (Gounod's opera, based on Goethe) at the opening and at the climax; the Phantom is repeatedly compared to Mephistopheles"
-  basis: "Plain in the text; standard critical commonplace. The direct link is to the Gounod opera, so this is a link to the Goethe subject"
-  certainty: medium
+  basis: "Plain in the text, but the direct source is Gounod's opera; Goethe is one step removed"
+  certainty: low
 - source: 11231
   source_title: Bartleby
   target: 10
   target_title: King James Bible
   target_part: Job
-  type: quotation
-  evidence: "The final scene, the narrator recalls Bartleby sleeping 'with kings and counsellors', the phrasing of Job 3, and 'Ah Bartleby! Ah humanity!' follows"
-  basis: "Standard annotation; wording of the Biblical phrase not verified against the corpus text"
-  certainty: medium
+  type: allusion
+  evidence: "Final scene: 'With kings and counselors,' murmured I, over the dead Bartleby; Job 3:14 'with kings and counsellors of the earth'"
+  basis: "Checked against the corpus text; three words, so below the quotation detector's minimum"
+  certainty: high
 - source: 7178
   source_title: Swann's Way
   target: 10
@@ -255,8 +255,8 @@
   target_part: Exodus
   type: allusion
   evidence: "Swann sees Odette as Botticelli's Zipporah, Jethro's daughter in the Sistine fresco; Zipporah is named in the text"
-  basis: "Named reference; standard critical commonplace"
-  certainty: medium
+  basis: "Named reference, but the direct source is Botticelli's fresco; the Bible is one step removed"
+  certainty: low
 - source: 78221
   source_title: Civilization and Its Discontents
   target: 10
@@ -296,9 +296,9 @@
   target: 150
   target_title: The Republic
   type: mention
-  evidence: "Marcus tells himself not to hope for Plato's Republic (book 9)"
-  basis: "Named reference; exact book and wording should be checked against the corpus text"
-  certainty: medium
+  evidence: "'I must not expect a Plato's commonwealth' (book 9); book 7 also quotes Republic 486A ('Out of Plato'), per the translator's notes"
+  basis: "Checked against the corpus text (Casaubon translation)"
+  certainty: high
 - source: 1232
   source_title: The Prince
   target: 228
