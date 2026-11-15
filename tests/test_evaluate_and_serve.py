@@ -112,3 +112,18 @@ def test_a_review_for_an_unknown_link_is_refused(server):
         post_review(server, {"link_id": 987654, "verdict": "accept"})
 
     assert error.value.code == 404
+
+
+def test_served_graph_says_it_accepts_reviews(server):
+    assert get_graph(server)["reviewable"] is True
+
+
+def test_term_lookup_names_the_works_that_use_a_word(server):
+    graph = get_graph(server)
+    titles = {w["id"]: w["title"] for w in graph["works"]}
+
+    with urllib.request.urlopen(server + "/api/term?q=Parallax") as response:
+        found = json.loads(response.read())
+
+    assert [titles[w["id"]] for w in found["works"]] == ["Ulysses"]
+    assert found["works"][0]["count"] == 2
