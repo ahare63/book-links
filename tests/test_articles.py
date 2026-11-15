@@ -78,3 +78,16 @@ def test_ingesting_the_same_article_twice_changes_nothing(with_article_model):
     corpus.run("add-article", ARTICLE)
 
     assert corpus.export().describe() == once
+
+
+def test_an_article_backing_a_detected_link_is_cited_on_it(with_article_model):
+    corpus = with_article_model
+    corpus.run("detect")
+    corpus.run("add-article", ARTICLE)
+    corpus.run("detect")
+
+    link = corpus.export().one("The Waste Land", "Hamlet", "quotation")
+
+    assert "article_ulysses.txt" in link["article"]
+    assert "ophelia's farewell" in quotes(link, "source")
+    assert "sweet ladies" in quotes(link, "source")

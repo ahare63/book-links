@@ -33,8 +33,19 @@ def term_counts(store, word):
     return [{"id": work_id, "count": n} for work_id, n in sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))]
 
 
+MAX_BODY = 64 * 1024
+
+
 def make_handler(data_dir):
     class Handler(BaseHTTPRequestHandler):
+        def addressed_to_us(self):
+            """False for requests a web page could make through DNS rebinding (wrong Host)."""
+            port = self.server.server_port
+            if self.headers.get("Host") in (f"127.0.0.1:{port}", f"localhost:{port}"):
+                return True
+            self.send(403, {"error": "unexpected Host header"})
+            return False
+
         def send(self, status, body, content_type="application/json"):
             if isinstance(body, (dict, list)):
                 body = json.dumps(body, ensure_ascii=False)
@@ -47,6 +58,8 @@ def make_handler(data_dir):
             self.wfile.write(body)
 
         def do_GET(self):
+            if not self.addressed_to_us():
+                return
             url = urlparse(self.path)
             if url.path == "/graph.json":
                 with Store(data_dir) as store:
@@ -63,7 +76,10 @@ def make_handler(data_dir):
         def serve_static(self, path):
             if not DIST.is_dir():
                 return self.send(404, "viewer not built: run `npm run build` in viewer/\n", "text/plain; charset=utf-8")
-            target = (DIST / path.lstrip("/")).resolve()
+            try:
+                target = (DIST / path.lstrip("/")).resolve()
+            except (ValueError, OSError):
+                return self.send(404, "not found\n", "text/plain; charset=utf-8")
             if path.endswith("/"):
                 target = target / "index.html"
             if DIST not in target.parents and target != DIST or not target.is_file():
@@ -71,10 +87,20 @@ def make_handler(data_dir):
             self.send(200, target.read_bytes(), CONTENT_TYPES.get(target.suffix, "application/octet-stream"))
 
         def do_POST(self):
+            if not self.addressed_to_us():
+                return
             if urlparse(self.path).path != "/api/review":
                 return self.send(404, {"error": "not found"})
             try:
-                length = int(self.headers.get("Content-Length", 0))
+                length = int(self.headers.get("Content-Length", ""))
+            except ValueError:
+                length = -1
+            if not 0 < length <= MAX_BODY:
+                return self.send(400, {"error": "missing, bad or oversized Content-Length"})
+            # A cross-site form or fetch cannot send this content type without a preflight we never answer.
+            if self.headers.get("Content-Type", "").split(";")[0].strip() != "application/json":
+                return self.send(403, {"error": "reviews must be sent as application/json"})
+            try:
                 body = json.loads(self.rfile.read(length))
                 link_id, verdict = body["link_id"], body["verdict"]
                 corrected, note = body.get("type"), body.get("note")

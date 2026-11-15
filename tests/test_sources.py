@@ -63,6 +63,7 @@ def site(monkeypatch):
             "/cache/epub/23684/pg23684.txt": GUTENBERG_FILE,
             "/ebooks03/0301261.txt": HAMLET,
             "/sparql": json.dumps(SPARQL),
+            "/cache/epub/777/pg777.txt": "<html><body>Too many requests</body></html>",
         }
     )
     monkeypatch.setenv("BOOK_LINKS_GUTENBERG_URL", site.url + "/cache/epub/{id}/pg{id}.txt")
@@ -140,3 +141,20 @@ def test_a_work_with_no_known_year_is_not_given_a_direction_it_cannot_support(co
     graph = corpus.export()
 
     assert graph.touching("Keats: Poems Published in 1820") == []
+
+
+def test_a_page_that_is_not_a_gutenberg_text_is_refused_and_not_kept(corpus, site):
+    code = corpus.run("add-book", "777", "--year", "1900", ok=False)
+    site.pages["/cache/epub/777/pg777.txt"] = GUTENBERG_FILE
+
+    assert code != 0
+    assert corpus.export().works == []
+    corpus.run("add-book", "777", "--year", "1820")
+    assert len([r for r in site.requests if "pg777" in r]) == 2
+
+
+def test_add_book_refuses_an_id_that_is_not_a_number(corpus, site):
+    code = corpus.run("add-book", "../23684", ok=False)
+
+    assert code != 0
+    assert site.requests == []

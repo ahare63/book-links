@@ -71,7 +71,7 @@ def span_score(words):
 
 class QuotationDetector(Detector):
     name = "quotation"
-    version = "2"
+    version = "3"
 
     def detect(self, corpus):
         works = sorted((w for w in corpus.works if w.passages and w.text_year is not None),
@@ -145,7 +145,7 @@ class QuotationDetector(Detector):
             else:
                 spans.append([passage_index, word_index, word_index, target_passage, target_word, target_word])
         unique = {}
-        for span in spans:
+        for span in sorted(spans, key=lambda s: -(s[2] - s[1])):
             unique.setdefault((span[3], span[4]), span)
         ordered = sorted(unique.values(), key=lambda s: (-(s[2] - s[1]), s[0], s[1]))
         long_enough = [s for s in ordered if s[2] - s[1] + NGRAM >= MIN_SPAN]

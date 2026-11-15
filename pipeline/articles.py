@@ -123,12 +123,20 @@ def add_article(store, args):
         if link_type not in LINK_TYPES or not allowed(store, source_id, target_id):
             skipped += 1
             continue
-        if store.conn.execute(
-            "SELECT 1 FROM links WHERE source_id = ? AND target_id = ? AND type = ?",
-            (source_id, target_id, link_type),
-        ).fetchone():
-            continue
         evidence = [Evidence(source_quote=str(claim.get("quote", ""))[:QUOTE_LIMIT] or None)]
+        existing = store.conn.execute(
+            "SELECT id FROM links WHERE source_id = ? AND target_id = ? AND type = ?",
+            (source_id, target_id, link_type),
+        ).fetchone()
+        if existing is not None:
+            # A detector found it too: cite the article on that link and keep its quote as evidence.
+            store.conn.execute("UPDATE links SET article_id = ? WHERE id = ?", (article_id, existing["id"]))
+            store.conn.execute(
+                "INSERT INTO evidence (link_id, source_quote, target_quote) VALUES (?, ?, NULL)",
+                (existing["id"], evidence[0].source_quote),
+            )
+            added += 1
+            continue
         link_id = store.conn.execute(
             "INSERT INTO links (source_id, target_id, type, detector, detector_version, score, rationale,"
             " evidence_key, article_id) VALUES (?, ?, ?, 'article', '1', ?, ?, ?, ?)",

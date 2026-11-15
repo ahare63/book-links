@@ -89,7 +89,7 @@ class Store:
     def __init__(self, data_dir):
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.conn = sqlite3.connect(self.data_dir / "book_links.db")
+        self.conn = sqlite3.connect(self.data_dir / "book_links.db", timeout=60)
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA foreign_keys = ON")
         self.conn.executescript(SCHEMA)
@@ -143,7 +143,15 @@ class Store:
     # passages --------------------------------------------------------------
 
     def set_passages(self, work_id, passages):
-        """Replace a work's passages. ``passages`` is an iterable of (position, text)."""
+        """Replace a work's passages. ``passages`` is an iterable of (position, text).
+
+        Evidence quoting the old passages is removed; the next ``detect`` rebuilds it.
+        """
+        old = "SELECT id FROM passages WHERE work_id = ?"
+        self.conn.execute(
+            f"DELETE FROM evidence WHERE source_passage_id IN ({old}) OR target_passage_id IN ({old})",
+            (work_id, work_id),
+        )
         self.conn.execute("DELETE FROM passages WHERE work_id = ?", (work_id,))
         self.conn.executemany(
             "INSERT INTO passages (work_id, seq, position, text) VALUES (?, ?, ?, ?)",

@@ -71,3 +71,17 @@ def test_a_boundary_line_missing_from_the_parent_is_an_error(seeded):
 
     assert code != 0
     assert [w for w in seeded.export().works if w["kind"] == "subwork"] == []
+
+
+def test_a_review_follows_its_link_onto_a_newly_declared_poem(seeded):
+    seeded.run("detect")
+    link = seeded.export().one("Tender Is the Night", "Poems Published in 1820", "title-source")
+    seeded.run("review", link["id"], "--verdict", "accept", "--note", "Keats")
+
+    declare(seeded)
+    seeded.run("detect")
+
+    moved = seeded.export().one("Tender Is the Night", "Ode to a Nightingale", "title-source")
+    assert moved["reviewed"] is True
+    assert moved["status"] == "accepted"
+    assert moved["note"] == "Keats"

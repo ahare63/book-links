@@ -166,3 +166,18 @@ def test_matching_chapter_headings_are_not_a_quotation(corpus):
     graph = corpus.export()
 
     assert graph.links == []
+
+
+def test_a_full_quotation_counts_even_after_an_earlier_partial_echo(corpus):
+    line = "The lantern of the drowned sailor burns green."
+    corpus.add_text(f"An old chronicle of the coast.\n\n{line}\n\nSo the chronicle ends.", "Coast Chronicle", "Anon Monk", 1611)
+    corpus.add_text(
+        "We spoke of the lantern of the drowned sailor. Nobody laughed.\n\n"
+        f"Years later my grandmother said it whole.\n\n{line}",
+        "Shelling Peas", "First Borrower", 1850,
+    )
+    corpus.run("detect")
+
+    link = corpus.export().one("Shelling Peas", "Coast Chronicle", "quotation")
+
+    assert "burns green" in quotes(link, "source")

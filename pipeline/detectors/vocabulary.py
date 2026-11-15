@@ -18,10 +18,12 @@ MAX_ZIPF = 3.0
 MIN_SHARED = 2
 WORDS_PER_PAIR = 5
 MAX_SCORE = 0.5
-# Chance overlap is estimated from the corpus itself; this many imaginary pairable words are
-# added so that a corpus of a few short texts does not look saturated.
+# Chance overlap is estimated from the corpus itself, plus this many imaginary shared words standing
+# for the rest of English's rare vocabulary. Without them a corpus of a few short texts would make
+# any two shared rare words look expected; with them, small corpora lean towards proposing.
 PRIOR_POOL = 1000
-MAX_CHANCE = 1e-3  # propose only if chance would give this much overlap less often than this
+# Across all pairs tested, about this many pairs should pass by chance alone.
+FALSE_PAIRS = 0.5
 
 _WORD = re.compile(r"[^\W\d_]{%d,}" % MIN_LENGTH)
 
@@ -38,7 +40,7 @@ def poisson_tail(count, expected):
 
 class VocabularyDetector(Detector):
     name = "vocabulary"
-    version = "2"
+    version = "3"
 
     def detect(self, corpus):
         works = sorted((w for w in corpus.works if w.passages and w.text_year is not None),
@@ -60,12 +62,13 @@ class VocabularyDetector(Detector):
         pool = PRIOR_POOL
         for word, holders in users.items():
             if 2 <= len(holders) <= limit:
-                pool += 1
+                pool += len(holders) * (len(holders) - 1) // 2
                 for index in holders:
-                    pairable[index] += 1
+                    pairable[index] += len(holders) - 1
                 for a, b in combinations(holders, 2):
                     shared[(a, b)].append(word)
 
+        max_chance = FALSE_PAIRS / (len(works) * (len(works) - 1) / 2)
         candidates = []
         for (target_index, source_index), words in sorted(shared.items()):
             source, target = works[source_index], works[target_index]
@@ -74,7 +77,7 @@ class VocabularyDetector(Detector):
             # If shared words fell on pairs at random, this pair would get about this many.
             expected = pairable[source_index] * pairable[target_index] / (2 * pool)
             chance = poisson_tail(len(words), expected)
-            if chance > MAX_CHANCE:
+            if chance > max_chance:
                 continue
             words.sort(key=lambda w: (zipf[w], w))
             candidates.append(self._candidate(

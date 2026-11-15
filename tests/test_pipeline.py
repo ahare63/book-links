@@ -118,3 +118,13 @@ def test_a_later_text_naming_an_earlier_title_is_a_mention_of_it(corpus):
     link = graph.one("Piano Lessons", "The Glass Orchard", "mention")
     assert "the glass orchard" in quotes(link, "source")
     assert graph.between("The Glass Orchard", "Piano Lessons") == []
+
+
+def test_adding_works_again_after_detection_changes_nothing(seeded):
+    before = run_all(seeded).describe()
+
+    seeded.add_fixture_works()
+    seeded.add_stub("Infinite Jest", "David Foster Wallace", 1996)
+    after = run_all(seeded).describe()
+
+    assert after == before

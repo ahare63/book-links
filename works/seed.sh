@@ -22,7 +22,7 @@ add 8800  1320 "Dante Alighieri" "The Divine Comedy" --translation-year=1814
 add 52617 1353 "Giovanni Boccaccio" "The Decameron" --translation-year=1620
 add 1232  1532 "Niccolò Machiavelli" "The Prince" --translation-year=1908
 add 35330 1592 "Thomas Kyd" "The Spanish Tragedy"
-add 1122  1603 "William Shakespeare" "Hamlet"
+add 1524  1603 "William Shakespeare" "Hamlet"  # modern spelling; 1122 is the First Folio text
 add 1533  1606 "William Shakespeare" "Macbeth"
 add 10    1611 "Various" "King James Bible"
 add 100   1623 "William Shakespeare" "Complete Works of Shakespeare"

@@ -18,6 +18,13 @@ print(
                     "rationale": "The article says Stephen's theory of Hamlet structures the library episode.",
                 },
                 {
+                    "source": "The Waste Land",
+                    "target": "Hamlet",
+                    "type": "quotation",
+                    "quote": "Eliot closes the pub scene with Ophelia's farewell",
+                    "rationale": "The article says the pub scene ends on Ophelia's words.",
+                },
+                {
                     "source": "Ulysses",
                     "target": "A Book Nobody Added",
                     "type": "allusion",

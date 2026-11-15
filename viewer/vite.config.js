@@ -5,8 +5,8 @@ export default defineConfig({
   base: "./",
   server: {
     proxy: {
-      "/graph.json": "http://127.0.0.1:8765",
-      "/api": "http://127.0.0.1:8765",
+      "/graph.json": { target: "http://127.0.0.1:8765", changeOrigin: true },
+      "/api": { target: "http://127.0.0.1:8765", changeOrigin: true },
     },
   },
 });

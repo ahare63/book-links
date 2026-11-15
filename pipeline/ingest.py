@@ -77,6 +77,8 @@ def add_stub(store, args):
 
 
 def add_book(store, args):
+    if not args.id.isdigit():
+        return _fail(f"ebook id must be a number, not {args.id!r}")
     url = os.environ.get("BOOK_LINKS_GUTENBERG_URL", GUTENBERG_URL).replace("{id}", args.id)
     raw = _cached_download(store, f"gutenberg-us-{args.id}.txt", url)
     if isinstance(raw, int):
@@ -106,6 +108,9 @@ def _cached_download(store, name, url):
         raw = http.fetch(url)
     except http.FetchError as error:
         return _fail(str(error))
+    _, problem = strip.strip_licence(strip.normalise_newlines(strip.decode(raw)))
+    if problem:
+        return _fail(f"{url} is not a Project Gutenberg text ({problem}); nothing was saved")
     path.write_bytes(raw)
     return raw
 
@@ -116,6 +121,8 @@ def _add_full(store, raw, title, author, year, source, source_ref, text_year):
     if problem:
         print(f"warning: {title}: {problem}; check the text by hand", file=sys.stderr)
     work_id = store.add_work(title, author, year, source, "full", source_ref=source_ref, text_year=text_year)
+    if stripped_text(store, work_id) == body:
+        return
     with open(texts_dir(store) / f"{work_id}.txt", "w", encoding="utf-8", newline="") as handle:
         handle.write(body)
     store.set_passages(work_id, strip.split_passages(body))

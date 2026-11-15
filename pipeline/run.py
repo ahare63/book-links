@@ -80,6 +80,12 @@ def detect(store, args=None):
             target_id = subworks.resolve(candidate.target_id, [e.target_passage_id for e in evidence])
             if not allowed(store, source_id, target_id):
                 continue
+            if (source_id, target_id) != (candidate.source_id, candidate.target_id):
+                store.conn.execute(
+                    "UPDATE OR IGNORE reviews SET source_id = ?, target_id = ?"
+                    " WHERE source_id = ? AND target_id = ? AND type = ?",
+                    (source_id, target_id, candidate.source_id, candidate.target_id, candidate.type),
+                )
             key = (source_id, target_id, candidate.type)
             if key not in best or candidate.score > best[key][1].score:
                 candidate.evidence = evidence
@@ -92,7 +98,7 @@ def detect(store, args=None):
         for row in store.conn.execute("SELECT * FROM links")
     }
     for key, row in existing.items():
-        if row["detector"] in ran and key not in best:
+        if row["detector"] in ran and key not in best and row["article_id"] is None:
             store.conn.execute("DELETE FROM links WHERE id = ?", (row["id"],))
 
     for key, (detector, candidate) in best.items():
@@ -114,7 +120,11 @@ def detect(store, args=None):
                 "UPDATE links SET detector = ?, detector_version = ?, score = ?, rationale = ?, evidence_key = ? WHERE id = ?",
                 (detector.name, detector.version, score, candidate.rationale, ekey, link_id),
             )
-            store.conn.execute("DELETE FROM evidence WHERE link_id = ?", (link_id,))
+            store.conn.execute(
+                "DELETE FROM evidence WHERE link_id = ?"
+                " AND (source_passage_id IS NOT NULL OR target_passage_id IS NOT NULL)",
+                (link_id,),
+            )
         store.conn.executemany(
             "INSERT INTO evidence (link_id, source_passage_id, target_passage_id, source_quote, target_quote)"
             " VALUES (?, ?, ?, ?, ?)",

@@ -1,5 +1,6 @@
 """The gold-list report, and the local review server the viewer talks to."""
 
+import http.client
 import json
 import threading
 import urllib.request
@@ -34,6 +35,15 @@ GOLD = """\
   evidence: none; this entry exists to be missed
   basis: test
   certainty: high
+- source: 100
+  source_title: Infinite Jest
+  target: 100
+  target_title: Complete Works of Shakespeare
+  target_part: Hamlet
+  type: title-source
+  evidence: the collection is not in the corpus, but the play inside it is
+  basis: test
+  certainty: high
 - source: 15
   source_title: Moby-Dick
   target: 10
@@ -54,8 +64,8 @@ def test_evaluate_reports_which_gold_links_were_found(seeded, capsys):
     seeded.run("evaluate", gold, "--json")
     report = json.loads(capsys.readouterr().out)
 
-    assert report["total"] == 3, "the entry whose works are not in the corpus is not counted"
-    assert report["found"] == 2
+    assert report["total"] == 4, "the entry whose works are not in the corpus is not counted"
+    assert report["found"] == 3
     assert [m["source_title"] for m in report["missing"]] == ["Ulysses"]
     assert report["skipped"] == 1
     assert report["by_detector"]["quotation"]["found"] == 1
@@ -127,3 +137,80 @@ def test_term_lookup_names_the_works_that_use_a_word(server):
 
     assert [titles[w["id"]] for w in found["works"]] == ["Ulysses"]
     assert found["works"][0]["count"] == 2
+
+
+def test_evaluate_does_not_count_a_link_the_judge_rejected(seeded, capsys):
+    seeded.add_stub("Hemlock", "Some Novelist", 1990)
+    gold = seeded.tmp / "gold.yaml"
+    gold.write_text(
+        "- source: x\n  source_title: Hemlock\n  target: y\n  target_title: Poems Published in 1820\n"
+        "  type: title-source\n  evidence: none\n  basis: test\n  certainty: high\n",
+        encoding="utf-8",
+    )
+    seeded.run("detect")
+    seeded.run("judge")
+    capsys.readouterr()
+
+    seeded.run("evaluate", gold, "--json")
+    report = json.loads(capsys.readouterr().out)
+
+    assert report["found"] == 0
+
+
+def raw_request(base, method, path, body=b"", headers=None):
+    """Send a request with exactly these headers; returns the status code."""
+    host, port = base.removeprefix("http://").split(":")
+    connection = http.client.HTTPConnection(host, int(port))
+    connection.putrequest(method, path, skip_host=True, skip_accept_encoding=True)
+    for name, value in (headers or {}).items():
+        connection.putheader(name, value)
+    connection.endheaders(body)
+    status = connection.getresponse().status
+    connection.close()
+    return status
+
+
+def review_body(graph):
+    link = find(graph, "Infinite Jest", "Hamlet")[0]
+    return json.dumps({"link_id": link["id"], "verdict": "reject"}).encode()
+
+
+def test_a_review_posted_without_a_json_content_type_is_refused(server):
+    host = server.removeprefix("http://")
+    body = review_body(get_graph(server))
+
+    status = raw_request(server, "POST", "/api/review", body,
+                         {"Host": host, "Content-Type": "text/plain", "Content-Length": str(len(body))})
+
+    assert status == 403
+    assert find(get_graph(server), "Infinite Jest", "Hamlet")[0]["reviewed"] is False
+
+
+def test_a_request_for_another_host_name_is_refused(server):
+    port = server.rsplit(":", 1)[1]
+    body = review_body(get_graph(server))
+
+    post = raw_request(server, "POST", "/api/review", body, {
+        "Host": f"attacker.example:{port}", "Content-Type": "application/json", "Content-Length": str(len(body))})
+    get = raw_request(server, "GET", "/graph.json", headers={"Host": f"attacker.example:{port}"})
+
+    assert (post, get) == (403, 403)
+    assert find(get_graph(server), "Infinite Jest", "Hamlet")[0]["reviewed"] is False
+
+
+def test_a_review_with_a_bad_length_is_refused(server):
+    host = server.removeprefix("http://")
+
+    status = raw_request(server, "POST", "/api/review", b"",
+                         {"Host": host, "Content-Type": "application/json", "Content-Length": "-1"})
+
+    assert status == 400
+
+
+def test_static_files_outside_the_viewer_are_not_served(server):
+    host = server.removeprefix("http://")
+
+    statuses = {raw_request(server, "GET", path, headers={"Host": host})
+                for path in ("/../pyproject.toml", "/%2e%2e/pyproject.toml", "/..%2fpyproject.toml", "/%00")}
+
+    assert statuses == {404}

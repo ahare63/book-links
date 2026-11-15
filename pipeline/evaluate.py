@@ -5,6 +5,8 @@ from collections import defaultdict
 
 import yaml
 
+from pipeline.export import build_graph
+
 
 def resolve(store, ref, title):
     """The work whose source_ref is ``ref`` or, failing that, whose title is ``title``; else None."""
@@ -19,33 +21,30 @@ def with_subworks(store, work_id):
     return {work_id} | {row["id"] for row in rows}
 
 
-def matching_detectors(store, source_ids, target_ids):
-    """Detectors of the links between the two sides that no owner review rejected."""
-    detectors = set()
-    for link in store.conn.execute("SELECT * FROM links"):
-        if link["source_id"] not in source_ids or link["target_id"] not in target_ids:
-            continue
-        review = store.conn.execute(
-            "SELECT verdict FROM reviews WHERE source_id = ? AND target_id = ? AND type = ?",
-            (link["source_id"], link["target_id"], link["type"]),
-        ).fetchone()
-        if review is None or review["verdict"] != "reject":
-            detectors.add(link["detector"])
-    return detectors
+def side(store, ref, title, part=None):
+    """Ids a gold entry's side may match: the work and its subworks, plus the named part if held
+    separately (``target_part: Hamlet`` also matches a standalone Hamlet). Empty if none is held."""
+    ids = set()
+    for row in (resolve(store, ref, title), resolve(store, None, part) if part else None):
+        if row is not None:
+            ids |= with_subworks(store, row["id"])
+    return ids
 
 
 def evaluate_gold(store, entries) -> dict:
+    # Only links that are not rejected, by the judge or by the owner, count as found.
+    standing = [link for link in build_graph(store)["links"] if link["status"] != "rejected"]
     total = found = skipped = 0
     missing = []
     by_detector = defaultdict(lambda: {"found": 0})
     for entry in entries:
-        source = resolve(store, entry.get("source"), entry.get("source_title"))
-        target = resolve(store, entry.get("target"), entry.get("target_title"))
-        if source is None or target is None:
+        sources = side(store, entry.get("source"), entry.get("source_title"))
+        targets = side(store, entry.get("target"), entry.get("target_title"), entry.get("target_part"))
+        if not sources or not targets:
             skipped += 1
             continue
         total += 1
-        detectors = matching_detectors(store, with_subworks(store, source["id"]), with_subworks(store, target["id"]))
+        detectors = {l["detector"] for l in standing if l["source"] in sources and l["target"] in targets}
         if detectors:
             found += 1
             for name in detectors:
@@ -66,7 +65,7 @@ def evaluate(store, args):
     if args.json:
         print(json.dumps(report, ensure_ascii=False))
         return
-    print(f"recall: {report['found']}/{report['total']} gold links found ({report['skipped']} skipped: works not in the corpus)")
+    print(f"recall: {report['found']}/{report['total']} gold links found and not rejected ({report['skipped']} skipped: works not in the corpus)")
     for name, counts in sorted(report["by_detector"].items()):
         print(f"  {name}: {counts['found']}")
     for entry in report["missing"]:
