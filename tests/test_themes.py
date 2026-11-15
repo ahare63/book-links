@@ -36,7 +36,7 @@ def test_works_sharing_specific_themes_are_linked_by_theme(themed):
     assert "satan wagers" in quotes(link, "target")
 
 
-def test_one_shared_theme_is_not_enough(themed):
+def test_one_shared_theme_held_by_other_works_too_is_not_enough(themed):
     themed.run("themes")
     themed.run("detect")
 
@@ -99,3 +99,15 @@ def test_a_reply_with_string_ids_and_bare_labels_is_still_stored(corpus, monkeyp
     corpus.run("themes")
 
     assert calls(corpus) == first, "the work was labelled, so it is not asked about again"
+
+
+def test_one_theme_that_no_other_work_holds_is_enough(corpus, monkeypatch):
+    monkeypatch.setenv("BOOK_LINKS_MODEL_CMD", f"{sys.executable} {FAKE_THEME_MODEL}")
+    corpus.add_stub("Lone One", "Author One", 1850)
+    corpus.add_stub("Lone Two", "Author Two", 1915)
+    corpus.run("themes")
+    corpus.run("detect")
+
+    link = corpus.export().one("Lone Two", "Lone One", "theme")
+
+    assert "a city told through its dead" in link["rationale"]

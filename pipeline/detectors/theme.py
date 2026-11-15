@@ -7,7 +7,7 @@ from collections import defaultdict
 
 from pipeline.detectors.base import Candidate, Detector, Evidence
 
-MIN_SHARED = 2
+MIN_SHARED = 2  # unless one shared theme is held by these two works alone
 MAX_HOLDERS = 0.1  # a theme held by more than this share of labelled works says little
 MIN_LIMIT = 3
 THEME_WEIGHT = 0.2
@@ -16,7 +16,7 @@ SCORE_CAP = 0.4
 
 class ThemeDetector(Detector):
     name = "theme"
-    version = "2"
+    version = "3"
 
     def detect(self, corpus):
         notes = defaultdict(dict)  # work id -> theme -> note
@@ -39,7 +39,7 @@ class ThemeDetector(Detector):
                     (t for t in later_themes if t in earlier_themes and holders[t] <= limit),
                     key=lambda t: (holders[t], t),
                 )
-                if len(shared) < MIN_SHARED:
+                if len(shared) < MIN_SHARED and not any(holders[t] == 2 for t in shared):
                     continue
                 miss = 1.0
                 for theme in shared:

@@ -29,6 +29,8 @@ THEMES = {
     ],
     "Twin One": [("twins parted at birth", "x."), ("a shipwreck on a strange coast", "x.")],
     "Twin Two": [("twins parted at birth", "x."), ("a shipwreck on a strange coast", "x.")],
+    "Lone One": [("a city told through its dead", "x."), ("a mill town", "x.")],
+    "Lone Two": [("a city told through its dead", "x."), ("a river journey", "x.")],
     "Sea One": [("the sea as fate", "x."), ("whaling", "x."), ("a mad captain", "x.")],
     "Sea Two": [("the sea as fate", "x."), ("whaling", "x."), ("a storm", "x.")],
     "Sea Three": [("the sea as fate", "x."), ("whaling", "x."), ("a lighthouse", "x.")],
