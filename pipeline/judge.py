@@ -1,10 +1,12 @@
 """Ask the model whether each candidate link is real. Verdicts are cached by evidence."""
 
 import sys
+from concurrent.futures import ThreadPoolExecutor
 
 from pipeline.model import ModelError, ask_json
 
 MAX_CONSECUTIVE_FAILURES = 3
+WORKERS = 4
 
 PROMPT = """\
 You are checking a candidate link between two literary works for a reference graph.
@@ -50,33 +52,48 @@ def build_prompt(store, link) -> str:
     )
 
 
+def ask_about(prompt):
+    """The model's verdict on one prompt as ``(verdict, confidence, rationale)``, or the error."""
+    try:
+        reply = ask_json(prompt, "verdict")
+        verdict = reply["verdict"]
+        if verdict not in ("accept", "reject"):
+            raise ModelError(f"unexpected verdict {verdict!r}")
+        confidence = max(0.0, min(1.0, float(reply.get("confidence", 0.5))))
+    except (ModelError, TypeError, ValueError) as error:
+        return error
+    return verdict, confidence, str(reply.get("rationale", ""))
+
+
 def judge(store, args=None):
     pending = store.conn.execute(
         "SELECT * FROM links WHERE evidence_key NOT IN (SELECT evidence_key FROM judgements) ORDER BY id"
     ).fetchall()
+    prompts = [build_prompt(store, link) for link in pending]
     judged = failed = streak = 0
-    for link in pending:
-        try:
-            reply = ask_json(build_prompt(store, link), "verdict")
-            verdict = reply["verdict"]
-            if verdict not in ("accept", "reject"):
-                raise ModelError(f"unexpected verdict {verdict!r}")
-            confidence = max(0.0, min(1.0, float(reply.get("confidence", 0.5))))
-        except (ModelError, TypeError, ValueError) as error:
-            failed += 1
-            streak += 1
-            print(f"judge: link {link['id']} not judged: {error}", file=sys.stderr)
-            if streak >= MAX_CONSECUTIVE_FAILURES:
-                print("judge: stopping after repeated failures", file=sys.stderr)
-                break
-            continue
-        streak = 0
-        judged += 1
-        store.conn.execute(
-            "INSERT OR REPLACE INTO judgements (evidence_key, verdict, confidence, rationale) VALUES (?, ?, ?, ?)",
-            (link["evidence_key"], verdict, confidence, str(reply.get("rationale", ""))),
-        )
-        store.conn.commit()
+    # The model calls run a few at a time; results are saved here, in link order, as they finish.
+    with ThreadPoolExecutor(max_workers=WORKERS) as pool:
+        futures = [pool.submit(ask_about, prompt) for prompt in prompts]
+        for link, future in zip(pending, futures):
+            result = future.result()
+            if isinstance(result, Exception):
+                failed += 1
+                streak += 1
+                print(f"judge: link {link['id']} not judged: {result}", file=sys.stderr)
+                if streak >= MAX_CONSECUTIVE_FAILURES:
+                    print("judge: stopping after repeated failures", file=sys.stderr)
+                    for waiting in futures:
+                        waiting.cancel()
+                    break
+                continue
+            streak = 0
+            judged += 1
+            verdict, confidence, rationale = result
+            store.conn.execute(
+                "INSERT OR REPLACE INTO judgements (evidence_key, verdict, confidence, rationale) VALUES (?, ?, ?, ?)",
+                (link["evidence_key"], verdict, confidence, rationale),
+            )
+            store.conn.commit()
     print(f"judged {judged} of {len(pending)} unjudged links")
     return 1 if failed else 0
 

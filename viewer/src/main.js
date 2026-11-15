@@ -29,7 +29,7 @@ const state = {
   types: new Set(),
   showProposed: true,
   showRejected: false,
-  layout: "force",
+  layout: new URLSearchParams(location.search).get("layout") === "timeline" ? "timeline" : "force",
   focus: null, // work id whose neighbourhood is shown
   selected: null, // link id shown in the detail panel
   lens: null, // { term, counts: Map(work id -> count) }
@@ -72,13 +72,20 @@ function visibleLinks() {
 
 // Layouts ---------------------------------------------------------------
 
-// Years before 1500 share the first 15% of the axis so that Homer does not flatten the novels.
-function yearToX(year, minYear, maxYear) {
-  const split = 1500;
-  if (year === null || year === undefined) return -0.05;
-  if (minYear >= split) return (year - minYear) / Math.max(1, maxYear - minYear);
-  if (year < split) return (0.15 * (year - minYear)) / (split - minYear);
-  return 0.15 + (0.85 * (year - split)) / Math.max(1, maxYear - split);
+const LANES = 9;
+
+// Half of the axis is true to the calendar and half gives every work equal room, so the crowded
+// decades spread out while earlier and later still read left to right.
+function timelineScale() {
+  const years = state.data.works.map((work) => work.year).filter((year) => year !== null).sort((a, b) => a - b);
+  const minYear = years[0];
+  const maxYear = years[years.length - 1];
+  return (year) => {
+    if (year === null || year === undefined) return -0.05;
+    const calendar = (year - minYear) / Math.max(1, maxYear - minYear);
+    const rank = years.filter((other) => other < year).length / years.length;
+    return 0.5 * calendar + 0.5 * rank;
+  };
 }
 
 function computePositions() {
@@ -100,23 +107,21 @@ function computePositions() {
   const [minX, maxX, minY, maxY] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
   const norm = (value, low, high) => (high === low ? 0.5 : (value - low) / (high - low));
 
-  const years = state.data.works.map((work) => work.year).filter((year) => year !== null);
-  const minYear = Math.min(...years);
-  const maxYear = Math.max(...years);
-  const width = 3; // the timeline is three times as wide as it is tall
+  const scale = timelineScale();
+  const width = 2.4; // the timeline is wider than it is tall
+  const byYear = [...state.data.works].sort((a, b) => (a.year ?? -Infinity) - (b.year ?? -Infinity) || a.id - b.id);
+  const lane = new Map(byYear.map((work, index) => [String(work.id), (index * 4) % LANES]));
 
   positions = { force: {}, timeline: {} };
   layoutGraph.forEachNode((id, attrs) => {
-    const x = norm(attrs.x, minX, maxX);
-    const y = norm(attrs.y, minY, maxY);
-    positions.force[id] = { x, y };
-    positions.timeline[id] = { x: width * yearToX(graph.getNodeAttribute(id, "year"), minYear, maxYear), y };
+    positions.force[id] = { x: norm(attrs.x, minX, maxX), y: norm(attrs.y, minY, maxY) };
+    positions.timeline[id] = { x: width * scale(graph.getNodeAttribute(id, "year")), y: (lane.get(id) + 0.5) / LANES };
   });
   graph.forEachNode((id, attrs) => {
     if (!attrs.tick) return;
-    const at = { x: width * yearToX(attrs.year, minYear, maxYear), y: -0.08 };
-    positions.force[id] = at;
-    positions.timeline[id] = at;
+    // Hidden nodes still count towards the view's bounding box, so ticks wait in the middle.
+    positions.force[id] = { x: 0.5, y: 0.5 };
+    positions.timeline[id] = { x: width * scale(attrs.year), y: -0.06 };
   });
 }
 
@@ -224,7 +229,7 @@ function edgeReducer(edge, attrs) {
   if (!link || !linkVisible(link)) return { ...attrs, hidden: true };
   if (state.focus !== null && link.source !== state.focus && link.target !== state.focus) return { ...attrs, hidden: true };
   const base = TYPE_COLOURS[link.type] || FALLBACK_COLOUR;
-  const alpha = link.status === "accepted" ? 0.9 : link.status === "rejected" ? 0.25 : 0.4;
+  const alpha = link.status === "accepted" ? 0.9 : link.status === "rejected" ? 0.25 : 0.55;
   const selected = state.selected === link.id;
   return {
     ...attrs,
@@ -477,6 +482,7 @@ async function load(first) {
     }
   }
   renderControls();
+  document.querySelector(`input[name="layout"][value="${state.layout}"]`).checked = true;
   refresh();
 }
 
