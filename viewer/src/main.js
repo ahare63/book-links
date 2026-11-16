@@ -492,7 +492,7 @@ load(true);
 
 // The public site withholds quotes from texts that may be in copyright in the US (see pipeline/site.py).
 function quoteHtml(quote, work) {
-  if (quote) return escapeHtml(quote);
+  if (quote) return escapeHtml(quote).replace(/_(?=\S)([^_]+?)(?<=\S)_/g, "<em>$1</em>");
   const withheld = !state.data.reviewable && work.kind !== "stub" && work.source !== "gutenberg-us";
   return `<span class="none">${withheld ? "not quoted on this site" : "no passage"}</span>`;
 }
