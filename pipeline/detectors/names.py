@@ -48,7 +48,7 @@ class Unit:
 
 class NamesDetector(Detector):
     name = "names"
-    version = "4"
+    version = "5"
 
     def detect(self, corpus):
         units = self._units(corpus)
@@ -136,7 +136,8 @@ class NamesDetector(Detector):
         own = {self._surname(later), self._surname(earlier)}
         shared = sorted(
             (name for name in target.names if name in source.capitals and name not in own),
-            key=lambda name: (holders[name], name),
+            # The earlier work's main people first: Achilles and Hector say more to a reader than Automedon.
+            key=lambda name: (-target.capitals[name], holders[name], name),
         )
         author = self._author_name(target)
         named_author = author if author and author in source.capitals and author != self._surname(later) else None

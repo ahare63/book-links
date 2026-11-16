@@ -213,3 +213,19 @@ def test_names_used_across_many_books_of_one_collection_still_count(corpus):
     graph = corpus.export()
 
     assert [link for link in graph.touching("Exile") if link["type"] == "allusion"]
+
+
+def test_the_names_shown_first_are_the_ones_the_earlier_work_uses_most(corpus):
+    hero = " ".join(["Then Zephon spoke, and Zephon went on."] * 6)
+    corpus.add_text(
+        hero + " The guards saw Abaris, Abaris and Abaris. The ship sailed by Corcyra, Corcyra and Corcyra.",
+        "The Old Epic",
+        "Old Poet",
+        -700,
+    )
+    corpus.add_text("He spoke of Abaris, of Corcyra and of Zephon.", "The New Poem", "New Poet", 1800)
+    corpus.run("detect")
+
+    link = corpus.export().one("The New Poem", "The Old Epic", "allusion")
+
+    assert link["rationale"].index("Zephon") < link["rationale"].index("Abaris")
