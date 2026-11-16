@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Book Links</title>
+    <script type="module" crossorigin src="./assets/index-B48xiPG_.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-fX2ip5Ch.css">
+  </head>
+  <body>
+    <aside id="controls">
+      <h1>Book Links</h1>
+      <p id="summary"></p>
+
+      <section>
+        <h2>Layout</h2>
+        <label><input type="radio" name="layout" value="force" checked /> Clusters</label>
+        <label><input type="radio" name="layout" value="timeline" /> Timeline</label>
+      </section>
+
+      <section>
+        <h2>Confidence at least <output id="confidence-value">0.00</output></h2>
+        <input id="confidence" type="range" min="0" max="1" step="0.05" value="0" />
+      </section>
+
+      <section>
+        <h2>Link types</h2>
+        <div id="types"></div>
+      </section>
+
+      <section>
+        <h2>Status</h2>
+        <label><input type="checkbox" id="show-proposed" checked /> Proposed (not yet confirmed)</label>
+        <label><input type="checkbox" id="show-rejected" /> Rejected</label>
+      </section>
+
+      <section id="lens-section" hidden>
+        <h2>Term lens</h2>
+        <form id="lens-form">
+          <input id="lens" type="search" placeholder="a word, e.g. parallax" autocomplete="off" />
+        </form>
+        <p id="lens-result"></p>
+      </section>
+
+      <section>
+        <h2>Era</h2>
+        <div id="eras"></div>
+      </section>
+    </aside>
+
+    <main id="graph"></main>
+
+    <aside id="detail"></aside>
+
+  </body>
+</html>
