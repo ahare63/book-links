@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from pipeline.confidence import assess
+from pipeline.locators import Locators
 
 
 def build_graph(store) -> dict:
@@ -26,10 +27,18 @@ def build_graph(store) -> dict:
         (row["source_id"], row["target_id"], row["type"]): row for row in store.conn.execute("SELECT * FROM reviews")
     }
     citations = dict(store.conn.execute("SELECT id, citation FROM articles"))
+    locators = Locators(store)
     evidence = {}
-    for row in store.conn.execute("SELECT link_id, source_quote, target_quote FROM evidence ORDER BY id"):
+    for row in store.conn.execute(
+        "SELECT link_id, source_passage_id, target_passage_id, source_quote, target_quote FROM evidence ORDER BY id"
+    ):
         evidence.setdefault(row["link_id"], []).append(
-            {"source_quote": row["source_quote"], "target_quote": row["target_quote"]}
+            {
+                "source_quote": row["source_quote"],
+                "target_quote": row["target_quote"],
+                "source_locator": locators.locate(row["source_passage_id"], row["source_quote"]),
+                "target_locator": locators.locate(row["target_passage_id"], row["target_quote"]),
+            }
         )
     links = []
     for row in store.conn.execute("SELECT * FROM links ORDER BY id"):
