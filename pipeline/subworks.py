@@ -1,10 +1,24 @@
 """Poems declared inside a collection become their own works."""
 
 import sys
+from collections import defaultdict
 
 import yaml
 
 from pipeline.ingest import stripped_text
+
+
+def subwork_ranges(store):
+    """Each collection's subworks as ``{parent id: [(start, end, subwork id), ...]}``."""
+    ranges = defaultdict(list)
+    for row in store.conn.execute("SELECT id, parent_id, start_pos, end_pos FROM works WHERE kind = 'subwork'"):
+        ranges[row["parent_id"]].append((row["start_pos"], row["end_pos"], row["id"]))
+    return ranges
+
+
+def subwork_at(ranges, work_id, position):
+    """The id of the subwork of ``work_id`` that holds this character offset, or None."""
+    return next((sub for start, end, sub in ranges.get(work_id, ()) if start <= position < end), None)
 
 
 def register(commands):

@@ -225,3 +225,122 @@ def test_a_storm_is_not_a_mention_of_the_tempest_and_the_tempest_takes_no_title_
 
     assert graph.touching("Voyage") == []
     assert graph.touching("Old Book") == []
+
+
+QUOTED_PLAYS = """Preface.
+
+HAMLET. To be or not to be, that is the question, whether it is nobler in the mind to suffer.
+
+KING RICHARD. Now is the winter of our discontent made glorious summer by this sun of York.
+
+The last words of the history.
+
+PROSPERO. Our revels now are ended. These our actors were all spirits and are melted into air.
+
+The last words of the romance.
+"""
+
+QUOTING_NOVEL = """She murmured that now is the winter of our discontent made glorious summer by this sun of York.
+
+Later she said our revels now are ended, these our actors were all spirits and are melted into air.
+"""
+
+
+def add_quoted_plays(corpus, declarations=PLAY_DECLARATIONS):
+    corpus.add_text(QUOTED_PLAYS, "The Plays", "William Shakespeare", 1623)
+    path = corpus.tmp / "plays.yaml"
+    path.write_text(declarations, encoding="utf-8")
+    corpus.run("add-subworks", path)
+
+
+def test_a_quotation_of_several_plays_becomes_one_link_per_play(corpus):
+    add_quoted_plays(corpus)
+    corpus.add_text(QUOTING_NOVEL, "Society Novel", "Some Novelist", 1900)
+    corpus.run("detect")
+
+    graph = corpus.export()
+
+    richard = graph.one("Society Novel", "Richard III", "quotation")
+    tempest = graph.one("Society Novel", "The Tempest", "quotation")
+    assert graph.between("Society Novel", "The Plays", "quotation") == []
+    assert "winter of our discontent" in quotes(richard, "target")
+    assert "revels" not in quotes(richard, "target") + quotes(richard, "source")
+    assert "revels now are ended" in quotes(tempest, "target")
+    assert "winter" not in quotes(tempest, "target") + quotes(tempest, "source")
+
+
+def test_split_quotation_links_keep_the_score_and_rationale_of_the_original(corpus):
+    add_quoted_plays(corpus)
+    corpus.add_text(QUOTING_NOVEL, "Society Novel", "Some Novelist", 1900)
+    corpus.run("detect")
+
+    graph = corpus.export()
+
+    richard = graph.one("Society Novel", "Richard III", "quotation")
+    tempest = graph.one("Society Novel", "The Tempest", "quotation")
+    assert richard["detector_rationale"] == tempest["detector_rationale"]
+    assert richard["detector_rationale"].startswith("2 shared word sequence(s)")
+
+
+def test_quoted_text_outside_every_play_stays_on_the_collection(corpus):
+    add_quoted_plays(corpus)
+    corpus.add_text(
+        QUOTING_NOVEL + "\nHe asked whether it is nobler in the mind to suffer, that is the question.\n",
+        "Society Novel",
+        "Some Novelist",
+        1900,
+    )
+    corpus.run("detect")
+
+    graph = corpus.export()
+
+    graph.one("Society Novel", "Richard III", "quotation")
+    graph.one("Society Novel", "The Tempest", "quotation")
+    outside = graph.one("Society Novel", "The Plays", "quotation")
+    assert "nobler in the mind" in quotes(outside, "target")
+    assert "winter" not in quotes(outside, "target")
+
+
+def test_a_quotation_group_dated_after_its_source_is_dropped_alone(corpus):
+    late = PLAY_DECLARATIONS.replace("year: 1611", "year: 1950")
+    add_quoted_plays(corpus, late)
+    corpus.add_text(QUOTING_NOVEL, "Society Novel", "Some Novelist", 1900)
+    corpus.run("detect")
+
+    graph = corpus.export()
+
+    graph.one("Society Novel", "Richard III", "quotation")
+    assert graph.between("Society Novel", "The Tempest") == []
+
+
+def test_a_review_stays_behind_when_its_link_splits(corpus):
+    add_quoted_plays(corpus, "[]")
+    corpus.add_text(QUOTING_NOVEL, "Society Novel", "Some Novelist", 1900)
+    corpus.run("detect")
+    link = corpus.export().one("Society Novel", "The Plays", "quotation")
+    corpus.run("review", link["id"], "--verdict", "accept")
+    path = corpus.tmp / "plays.yaml"
+    path.write_text(PLAY_DECLARATIONS, encoding="utf-8")
+    corpus.run("add-subworks", path)
+    corpus.run("detect")
+
+    graph = corpus.export()
+
+    assert graph.one("Society Novel", "Richard III", "quotation")["reviewed"] is False
+    assert graph.one("Society Novel", "The Tempest", "quotation")["reviewed"] is False
+
+
+def test_a_review_follows_a_quotation_that_lands_on_one_play(corpus):
+    add_quoted_plays(corpus, "[]")
+    corpus.add_text(QUOTING_NOVEL.split("\n\n")[0] + "\n", "Society Novel", "Some Novelist", 1900)
+    corpus.run("detect")
+    link = corpus.export().one("Society Novel", "The Plays", "quotation")
+    corpus.run("review", link["id"], "--verdict", "accept")
+    path = corpus.tmp / "plays.yaml"
+    path.write_text(PLAY_DECLARATIONS, encoding="utf-8")
+    corpus.run("add-subworks", path)
+    corpus.run("detect")
+
+    moved = corpus.export().one("Society Novel", "Richard III", "quotation")
+
+    assert moved["reviewed"] is True

@@ -2,10 +2,11 @@
 
 import hashlib
 import json
-from collections import defaultdict
+from dataclasses import replace
 
 from pipeline.detectors import DETECTORS
 from pipeline.detectors.base import QUOTE_LIMIT, Corpus, Passage, SignatureTerm, ThemeLabel, Work
+from pipeline.subworks import subwork_at, subwork_ranges
 
 EVIDENCE_PER_LINK = 5
 
@@ -54,25 +55,51 @@ def evidence_key(store, source_id, target_id, link_type, evidence) -> str:
 
 
 class Subworks:
-    """Moves one side of a link onto a subwork when all its evidence lies inside that subwork."""
+    """Moves the sides of a link onto subworks of the collections they point into."""
 
     def __init__(self, store):
-        self.ranges = defaultdict(list)
-        for row in store.conn.execute("SELECT id, parent_id, start_pos, end_pos FROM works WHERE kind = 'subwork'"):
-            self.ranges[row["parent_id"]].append((row["start_pos"], row["end_pos"], row["id"]))
+        self.ranges = subwork_ranges(store)
         self.positions = dict(store.conn.execute("SELECT id, position FROM passages"))
 
+    def of_passage(self, work_id, passage_id):
+        """The subwork holding one passage, or ``work_id`` when no declared subwork does."""
+        if passage_id is None:
+            return work_id
+        found = subwork_at(self.ranges, work_id, self.positions[passage_id])
+        return work_id if found is None else found
+
     def resolve(self, work_id, passage_ids):
+        """The one subwork holding all these passages, or ``work_id`` when they are spread or outside."""
         ids = [p for p in passage_ids if p is not None]
         if not ids or work_id not in self.ranges:
             return work_id
-        containing = set()
-        for passage_id in ids:
-            position = self.positions[passage_id]
-            inside = [sub for start, end, sub in self.ranges[work_id] if start <= position < end]
-            containing.add(inside[0] if inside else None)
+        containing = {subwork_at(self.ranges, work_id, self.positions[passage_id]) for passage_id in ids}
         only = containing.pop() if len(containing) == 1 else None
         return only if only is not None else work_id
+
+    def split(self, candidate):
+        """``(source id, target id, evidence)`` for each place a candidate's evidence belongs.
+
+        Quotations are split evidence item by evidence item. Every other type moves as a whole, because
+        its evidence is statistical across the whole work.
+        """
+        if candidate.type != "quotation":
+            evidence = candidate.evidence[:EVIDENCE_PER_LINK]
+            return [
+                (
+                    self.resolve(candidate.source_id, [e.source_passage_id for e in evidence]),
+                    self.resolve(candidate.target_id, [e.target_passage_id for e in evidence]),
+                    evidence,
+                )
+            ]
+        groups = {}
+        for item in candidate.evidence:
+            key = (
+                self.of_passage(candidate.source_id, item.source_passage_id),
+                self.of_passage(candidate.target_id, item.target_passage_id),
+            )
+            groups.setdefault(key, []).append(item)
+        return [(source, target, items[:EVIDENCE_PER_LINK]) for (source, target), items in groups.items()]
 
 
 def allowed(store, source_id, target_id) -> bool:
@@ -91,24 +118,25 @@ def detect(store, args=None):
     best = {}
     for detector in DETECTORS:
         for candidate in detector.detect(corpus):
-            evidence = candidate.evidence[:EVIDENCE_PER_LINK]
-            for item in evidence:
-                item.source_quote = item.source_quote[:QUOTE_LIMIT] if item.source_quote else None
-                item.target_quote = item.target_quote[:QUOTE_LIMIT] if item.target_quote else None
-            source_id = subworks.resolve(candidate.source_id, [e.source_passage_id for e in evidence])
-            target_id = subworks.resolve(candidate.target_id, [e.target_passage_id for e in evidence])
-            if not allowed(store, source_id, target_id):
-                continue
-            if (source_id, target_id) != (candidate.source_id, candidate.target_id):
-                store.conn.execute(
-                    "UPDATE OR IGNORE reviews SET source_id = ?, target_id = ?"
-                    " WHERE source_id = ? AND target_id = ? AND type = ?",
-                    (source_id, target_id, candidate.source_id, candidate.target_id, candidate.type),
-                )
-            key = (source_id, target_id, candidate.type)
-            if key not in best or candidate.score > best[key][1].score:
-                candidate.evidence = evidence
-                best[key] = (detector, candidate)
+            places = subworks.split(candidate)
+            for source_id, target_id, evidence in places:
+                if not allowed(store, source_id, target_id):
+                    continue
+                for item in evidence:
+                    item.source_quote = item.source_quote[:QUOTE_LIMIT] if item.source_quote else None
+                    item.target_quote = item.target_quote[:QUOTE_LIMIT] if item.target_quote else None
+                if len(places) == 1 and (source_id, target_id) != (candidate.source_id, candidate.target_id):
+                    store.conn.execute(
+                        "UPDATE OR IGNORE reviews SET source_id = ?, target_id = ?"
+                        " WHERE source_id = ? AND target_id = ? AND type = ?",
+                        (source_id, target_id, candidate.source_id, candidate.target_id, candidate.type),
+                    )
+                key = (source_id, target_id, candidate.type)
+                if key not in best or candidate.score > best[key][1].score:
+                    best[key] = (
+                        detector,
+                        replace(candidate, source_id=source_id, target_id=target_id, evidence=evidence),
+                    )
 
     ran = [detector.name for detector in DETECTORS]
     existing = {
