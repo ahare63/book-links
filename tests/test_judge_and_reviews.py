@@ -1,6 +1,11 @@
 """How the judge's verdicts and the owner's reviews show up in the exported graph."""
 
+import sqlite3
 import sys
+from collections import Counter
+
+from conftest import FAKE_JUDGE
+from test_names import LATER_POEM, add_epic
 
 
 def calls(corpus):
@@ -62,6 +67,49 @@ def test_unusable_model_output_leaves_links_proposed(seeded, monkeypatch):
 
     assert code != 0
     assert {link["status"] for link in seeded.export().links} == {"proposed"}
+
+
+def with_named_models(corpus, monkeypatch):
+    """Point the judge at the fake, passing it the model each link is sent to."""
+    monkeypatch.setenv("BOOK_LINKS_MODEL_CMD", f"{sys.executable} {FAKE_JUDGE} --model {{model}}")
+    add_epic(corpus)
+    corpus.add_text(LATER_POEM, "The Journey", "Dante Alighieri", 1320, translation_year=1814)
+
+
+def models_asked(corpus):
+    return Counter(line.removeprefix("call ") for line in (corpus.tmp / "model_calls.log").read_text().splitlines())
+
+
+def test_name_based_links_go_to_the_stronger_model_and_the_rest_to_the_cheaper(seeded, monkeypatch):
+    with_named_models(seeded, monkeypatch)
+    seeded.run("detect")
+    links = seeded.export().links
+    names = sum(link["detector"] == "names" for link in links)
+    assert names, "the epic and the poem give a name-based link"
+
+    seeded.run("judge")
+
+    assert models_asked(seeded) == {"sonnet": names, "haiku": len(links) - names}
+
+
+def test_name_based_links_judged_before_the_model_was_recorded_are_asked_again(seeded, monkeypatch):
+    with_named_models(seeded, monkeypatch)
+    seeded.run("detect")
+    seeded.run("judge")
+    before = models_asked(seeded)
+    names = sum(link["detector"] == "names" for link in seeded.export().links)
+    # A database from before verdicts recorded their model: every verdict there came from Haiku.
+    with sqlite3.connect(seeded.data / "book_links.db") as conn:
+        conn.executescript(
+            "CREATE TABLE old AS SELECT evidence_key, verdict, confidence, rationale FROM judgements;"
+            "DROP TABLE judgements; ALTER TABLE old RENAME TO judgements;"
+        )
+
+    seeded.run("judge")
+    seeded.run("judge")
+
+    assert names
+    assert models_asked(seeded) - before == {"sonnet": names}, "only the name-based links, once"
 
 
 def test_owner_rejection_overrides_the_judge_and_survives_a_rerun(seeded):

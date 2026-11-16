@@ -190,6 +190,14 @@
   certainty: high
 - source: 1524
   source_title: Hamlet
+  target: 228
+  target_title: The Aeneid
+  type: allusion
+  evidence: "Act 2, scene 2: Hamlet asks the Player for 'Aeneas' tale to Dido', the slaughter of Priam by Pyrrhus from Aeneid Book 2"
+  basis: "Plain on the face of the text"
+  certainty: high
+- source: 1524
+  source_title: Hamlet
   target: 35330
   target_title: The Spanish Tragedy
   type: theme

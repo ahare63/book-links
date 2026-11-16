@@ -3,10 +3,18 @@
 import sys
 from concurrent.futures import ThreadPoolExecutor
 
-from pipeline.model import ModelError, ask_json
+from pipeline.model import DEFAULT_MODEL, ModelError, ask_json
 
 MAX_CONSECUTIVE_FAILURES = 3
 WORKERS = 4
+# Shared names leave the judge only its knowledge of the two works to go on, and Haiku too often
+# calls a real allusion (the Aeneid's Trojans, Hamlet's Aeneas and Dido) a shared tradition.
+MODELS = {"names": "sonnet"}
+
+
+def model_for(link) -> str:
+    return MODELS.get(link["detector"], DEFAULT_MODEL)
+
 
 PROMPT = """\
 You are checking a candidate link between two literary works for a reference graph.
@@ -62,10 +70,10 @@ def build_prompt(store, link) -> str:
     )
 
 
-def ask_about(prompt):
+def ask_about(prompt, model):
     """The model's verdict on one prompt as ``(verdict, confidence, rationale)``, or the error."""
     try:
-        reply = ask_json(prompt, "verdict")
+        reply = ask_json(prompt, "verdict", model)
         verdict = reply["verdict"]
         if verdict not in ("accept", "reject"):
             raise ModelError(f"unexpected verdict {verdict!r}")
@@ -76,14 +84,17 @@ def ask_about(prompt):
 
 
 def judge(store, args=None):
-    pending = store.conn.execute(
-        "SELECT * FROM links WHERE evidence_key NOT IN (SELECT evidence_key FROM judgements) ORDER BY id"
-    ).fetchall()
-    prompts = [build_prompt(store, link) for link in pending]
+    judged_by = dict(store.conn.execute("SELECT evidence_key, model FROM judgements"))
+    # A verdict from another model than the one a link is now sent to is asked again.
+    pending = [
+        link
+        for link in store.conn.execute("SELECT * FROM links ORDER BY id")
+        if judged_by.get(link["evidence_key"]) != model_for(link)
+    ]
     judged = failed = streak = 0
     # The model calls run a few at a time; results are saved here, in link order, as they finish.
     with ThreadPoolExecutor(max_workers=WORKERS) as pool:
-        futures = [pool.submit(ask_about, prompt) for prompt in prompts]
+        futures = [pool.submit(ask_about, build_prompt(store, link), model_for(link)) for link in pending]
         for link, future in zip(pending, futures, strict=True):
             result = future.result()
             if isinstance(result, Exception):
@@ -100,11 +111,12 @@ def judge(store, args=None):
             judged += 1
             verdict, confidence, rationale = result
             store.conn.execute(
-                "INSERT OR REPLACE INTO judgements (evidence_key, verdict, confidence, rationale) VALUES (?, ?, ?, ?)",
-                (link["evidence_key"], verdict, confidence, rationale),
+                "INSERT OR REPLACE INTO judgements (evidence_key, verdict, confidence, rationale, model)"
+                " VALUES (?, ?, ?, ?, ?)",
+                (link["evidence_key"], verdict, confidence, rationale, model_for(link)),
             )
             store.conn.commit()
-    print(f"judged {judged} of {len(pending)} unjudged links")
+    print(f"judged {judged} of {len(pending)} links not yet judged by their model")
     return 1 if failed else 0
 
 

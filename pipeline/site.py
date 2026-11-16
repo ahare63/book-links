@@ -11,23 +11,14 @@ from pipeline.export import build_graph
 DIST = Path(__file__).resolve().parent.parent / "viewer" / "dist"
 
 
-PUBLIC_SOURCE = "gutenberg-us"  # texts from elsewhere may be in copyright in the US, where Pages is hosted
-
-
 def public_graph(store):
-    """The exported graph without rejected links, review notes, or quotes from texts that may be in
-    copyright in the United States."""
+    """The exported graph without rejected links or review notes."""
     graph = build_graph(store)
-    quotable = {work["id"] for work in graph["works"] if work["source"] == PUBLIC_SOURCE}
     links = []
     for link in graph["links"]:
         if link["status"] == "rejected":
             continue
         link.pop("note", None)
-        for item in link["evidence"]:
-            for side in ("source", "target"):
-                if link[side] not in quotable:
-                    item[f"{side}_quote"] = None
         links.append(link)
     graph["links"] = links
     graph["reviewable"] = False

@@ -302,8 +302,8 @@ function renderLink(link) {
   const evidence = link.evidence
     .map(
       (item) => `<div class="evidence">
-        <figure><figcaption>${escapeHtml(source.title)}</figcaption><blockquote>${quoteHtml(item.source_quote, source)}</blockquote></figure>
-        <figure><figcaption>${escapeHtml(target.title)}</figcaption><blockquote>${quoteHtml(item.target_quote, target)}</blockquote></figure>
+        <figure><figcaption>${escapeHtml(source.title)}</figcaption><blockquote>${quoteHtml(item.source_quote)}</blockquote></figure>
+        <figure><figcaption>${escapeHtml(target.title)}</figcaption><blockquote>${quoteHtml(item.target_quote)}</blockquote></figure>
       </div>`,
     )
     .join("");
@@ -490,9 +490,6 @@ async function load(first) {
 
 load(true);
 
-// The public site withholds quotes from texts that may be in copyright in the US (see pipeline/site.py).
-function quoteHtml(quote, work) {
-  if (quote) return escapeHtml(quote);
-  const withheld = !state.data.reviewable && work.kind !== "stub" && work.source !== "gutenberg-us";
-  return `<span class="none">${withheld ? "not quoted on this site" : "no passage"}</span>`;
+function quoteHtml(quote) {
+  return quote ? escapeHtml(quote) : `<span class="none">no passage</span>`;
 }

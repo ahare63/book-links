@@ -122,10 +122,12 @@ detector proposes.
 ## The model
 
 The judge, the theme labeller and the article reader call the command in `BOOK_LINKS_MODEL_CMD`, which must read a
-prompt on standard input and print a reply containing JSON. The default is headless `claude` on
-Haiku with tools and settings turned off; it uses your logged-in Claude Code account, and calls
-count against that plan's limits. Verdicts are cached, so a link is only judged again when its
-evidence changes.
+prompt on standard input and print a reply containing JSON. The default is headless `claude` with
+tools and settings turned off; it uses your logged-in Claude Code account, and calls count against
+that plan's limits. `{model}` in the command is replaced by the model a call asks for: Sonnet for
+links from the names detector, whose only evidence is the names and what the model knows of both
+works, and Haiku for everything else. Verdicts are cached with the model that gave them, so a link
+is only judged again when its evidence changes or it is assigned to a different model.
 
 ## Layout
 

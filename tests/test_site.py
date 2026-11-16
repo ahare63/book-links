@@ -49,7 +49,7 @@ def test_the_site_graph_leaves_out_review_notes(seeded, viewer_dist):
     assert "my private note" not in json.dumps(graph)
 
 
-def test_the_site_graph_quotes_only_texts_from_the_us_gutenberg_site(corpus, site, viewer_dist):  # noqa: F811
+def test_the_site_graph_quotes_both_sides_whichever_site_the_text_came_from(corpus, site, viewer_dist):  # noqa: F811
     corpus.run("add-book", "23684", "--year", "1820")
     corpus.add_text(
         "Already with thee! tender is the night, And haply the Queen-Moon is on her throne,",
@@ -62,9 +62,9 @@ def test_the_site_graph_quotes_only_texts_from_the_us_gutenberg_site(corpus, sit
     graph = build(corpus, corpus.tmp / "site")
 
     links = [link for link in graph["links"] if link["type"] == "quotation"]
-    assert links, "the quotation is still published"
-    assert "queen-moon" in quotes(links[0], "target"), "the public-domain side keeps its quote"
-    assert quotes(links[0], "source").strip() == "", "a text that may be in copyright is not quoted"
+    assert links
+    assert "queen-moon" in quotes(links[0], "target")
+    assert "tender is the night" in quotes(links[0], "source")
 
 
 def test_the_site_contains_the_built_viewer(seeded, viewer_dist):

@@ -58,7 +58,8 @@ CREATE TABLE IF NOT EXISTS judgements (
     evidence_key TEXT PRIMARY KEY,
     verdict TEXT NOT NULL,         -- accept, reject
     confidence REAL NOT NULL,
-    rationale TEXT NOT NULL
+    rationale TEXT NOT NULL,
+    model TEXT NOT NULL DEFAULT 'haiku'  -- the model that gave the verdict; before this was kept, always haiku
 );
 CREATE TABLE IF NOT EXISTS reviews (
     id INTEGER PRIMARY KEY,
@@ -102,6 +103,9 @@ class Store:
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA foreign_keys = ON")
         self.conn.executescript(SCHEMA)
+        if "model" not in {row["name"] for row in self.conn.execute("PRAGMA table_info(judgements)")}:
+            self.conn.execute("ALTER TABLE judgements ADD COLUMN model TEXT NOT NULL DEFAULT 'haiku'")
+            self.conn.commit()
 
     def close(self):
         self.conn.commit()
